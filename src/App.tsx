@@ -4,11 +4,13 @@ import { useRoute } from './app/route'
 import { BuildPage } from './features/build/BuildPage'
 import { CharactersPage } from './features/characters/CharactersPage'
 import { DataPage } from './features/data/DataPage'
+import { useSaveFolderSync } from './import/sync'
 import { useAppStore } from './state/app-store'
 
 export default function App() {
   const route = useRoute()
   const ready = useAppStore(s => s.ready)
+  useSaveFolderSync()
   useEffect(() => {
     void useAppStore.getState().init()
   }, [])
