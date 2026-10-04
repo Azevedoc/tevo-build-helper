@@ -56,7 +56,8 @@ interface Item {
   rarity: Rarity;              // "common" | "uncommon" | "rare" | "epic" | "legendary" | "godly" | "forged" | "mythic"
   description?: string;
   effects?: string[];
-  icon?: string;               // filename in data/icons/, e.g. "glow-orb.png"
+  icon?: string;               // filename in public/icons/, e.g. "glow-orb.png"
+  legacy?: boolean;            // no longer obtainable; still matched on import, tagged in goal search
   sources: Source[];           // where it drops / is bought; may be empty (unknown)
   recipe?: RecipeInput[];      // absent or empty = base material
 }
@@ -174,7 +175,7 @@ If IndexedDB is unavailable (e.g. some private modes), the app works for the ses
 
 ## 7. Error handling
 
-- Unparseable file: "couldn't read this file", previous data kept. Individual unparseable lines are skipped and counted.
+- Unparseable file (no `Hero:` preload line found): "couldn't read this file", previous data kept. Other unrecognized lines are ignored.
 - Unknown item names: listed, never fatal.
 - Folder API unsupported: folder option hidden; drag-and-drop still available.
 - Permission lost on stored folder handle: prompt to re-grant.
@@ -187,7 +188,8 @@ Chosen for rapid deployment and ease of AI-driven maintenance: strong typing as 
 - Vite + React + TypeScript (strict), Tailwind CSS, Zustand (state), `idb` (IndexedDB), Vitest (+ Testing Library for light component tests). Node 22+ for development.
 
 ```
-data/items.json, data/icons/
+data/items.json
+public/icons/                    # item icons, served as static files
 scripts/seed-from-evohelper.ts   # one-time, provenance only
 scripts/validate-data.ts
 src/engine/                      # planner (§4)
