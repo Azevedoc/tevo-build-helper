@@ -4,6 +4,8 @@ A browser-based item build planner for the Warcraft III custom map **Twilight's 
 character's save file, pick goal items, and see your progress and what you still need to farm, grouped by
 where it drops.
 
+**Use it here: https://azevedoc.github.io/tevo-build-helper/** (nothing to install; your data stays in your browser).
+
 ## Development
 
 Requires Node 22+.
