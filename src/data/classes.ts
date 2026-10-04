@@ -1,0 +1,33 @@
+// Tier 4 classes, from the same one-time EvoHelper seed as data/items.json (map 7.39b).
+const FOURTH_CLASSES = new Set([
+  'Annihilator',
+  'Arch Sage',
+  'Avenger',
+  'Champion',
+  'Dark Arch Templar',
+  'Demon Incarnate',
+  'Grand Inquisitor',
+  'Grand Templar',
+  'Hierophant',
+  'Jounin',
+  'Legion Revenant',
+  'Lightbinder',
+  'Master Stalker',
+  'Monster Hunter',
+  'Mystic',
+  'Mythsong',
+  'Paladin',
+  'Phantom Assassin',
+  'Professional Witcher',
+  'Prophetess',
+  'Rhapsody',
+  'Rune Master',
+  'Sky Sorceress',
+  'Sniper',
+  'Stargazer',
+  'Summoner',
+  'Valkyrie',
+  'White Wizard',
+])
+
+export const isFourthClass = (className: string) => FOURTH_CLASSES.has(className)

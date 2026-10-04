@@ -16,6 +16,8 @@ export interface AppState {
   builds: Build[]
   /** A save folder was chosen, either remembered (Chrome, Edge) or uploaded at least once (other browsers). */
   hasSaveFolder: boolean
+  /** The Characters page lists only tier 4 classes. */
+  onlyFourthClass: boolean
   init(repo?: Repo): Promise<void>
   importSave(text: string, fileName: string, battleTag?: string): Promise<ImportResult>
   deleteCharacter(id: string): Promise<void>
@@ -29,10 +31,12 @@ export interface AppState {
   getSaveFolder(): Promise<FileSystemDirectoryHandle | undefined>
   setSaveFolder(handle: FileSystemDirectoryHandle): Promise<void>
   markFolderUploaded(): Promise<void>
+  setOnlyFourthClass(on: boolean): Promise<void>
 }
 
 const SAVE_FOLDER_KEY = 'saveFolder'
 const FOLDER_UPLOADED_KEY = 'saveFolderUploaded'
+const ONLY_FOURTH_CLASS_KEY = 'onlyFourthClass'
 
 let repo: Repo | null = null
 const getRepo = (): Repo => {
@@ -60,16 +64,25 @@ export const useAppStore = create<AppState>()((set, get) => {
     characters: [],
     builds: [],
     hasSaveFolder: false,
+    onlyFourthClass: false,
 
     async init(r) {
       repo = r ?? (await openRepo())
-      const [characters, builds, folder, uploaded] = await Promise.all([
+      const [characters, builds, folder, uploaded, onlyFourth] = await Promise.all([
         repo.listCharacters(),
         repo.listBuilds(),
         repo.getSetting(SAVE_FOLDER_KEY),
         repo.getSetting(FOLDER_UPLOADED_KEY),
+        repo.getSetting(ONLY_FOURTH_CLASS_KEY),
       ])
-      set({ ready: true, persistent: repo.persistent, characters, builds, hasSaveFolder: !!folder || !!uploaded })
+      set({
+        ready: true,
+        persistent: repo.persistent,
+        characters,
+        builds,
+        hasSaveFolder: !!folder || !!uploaded,
+        onlyFourthClass: !!onlyFourth,
+      })
     },
 
     async importSave(text, fileName, battleTag) {
@@ -154,6 +167,11 @@ export const useAppStore = create<AppState>()((set, get) => {
     async markFolderUploaded() {
       set({ hasSaveFolder: true })
       await getRepo().putSetting(FOLDER_UPLOADED_KEY, true)
+    },
+
+    async setOnlyFourthClass(on) {
+      set({ onlyFourthClass: on })
+      await getRepo().putSetting(ONLY_FOURTH_CLASS_KEY, on)
     },
   }
 })

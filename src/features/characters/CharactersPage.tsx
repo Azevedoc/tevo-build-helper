@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { toHash } from '../../app/route'
+import { isFourthClass } from '../../data/classes'
 import { dataset } from '../../data/dataset'
 import { planBuild } from '../../engine/plan'
 import { useAppStore } from '../../state/app-store'
@@ -12,8 +13,12 @@ export function CharactersPage() {
   const characters = useAppStore(s => s.characters)
   const builds = useAppStore(s => s.builds)
   const hasSaveFolder = useAppStore(s => s.hasSaveFolder)
+  const onlyFourthClass = useAppStore(s => s.onlyFourthClass)
+  const setOnlyFourthClass = useAppStore(s => s.setOnlyFourthClass)
   const [notice, setNotice] = useState<Notice | null>(null)
-  const sorted = [...characters].sort((a, b) => a.id.localeCompare(b.id))
+  const sorted = characters
+    .filter(c => !onlyFourthClass || isFourthClass(c.className))
+    .sort((a, b) => a.id.localeCompare(b.id))
 
   return (
     <div className="space-y-4">
@@ -26,8 +31,21 @@ export function CharactersPage() {
           {notice.text}
         </div>
       )}
-      {sorted.length === 0 ? (
+      {characters.length > 0 && (
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-neutral-300">
+          <input
+            type="checkbox"
+            className="accent-sky-600"
+            checked={onlyFourthClass}
+            onChange={e => void setOnlyFourthClass(e.target.checked)}
+          />
+          Only 4th class
+        </label>
+      )}
+      {characters.length === 0 ? (
         <p className="text-sm text-neutral-400">No characters yet. Import a save file to get started.</p>
+      ) : sorted.length === 0 ? (
+        <p className="text-sm text-neutral-400">No 4th class characters yet.</p>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map(c => (
