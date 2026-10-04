@@ -1,7 +1,19 @@
+import { useEffect } from 'react'
+import { Layout } from './app/Layout'
+import { useRoute } from './app/route'
+import { CharactersPage } from './features/characters/CharactersPage'
+import { useAppStore } from './state/app-store'
+
 export default function App() {
+  const route = useRoute()
+  const ready = useAppStore(s => s.ready)
+  useEffect(() => {
+    void useAppStore.getState().init()
+  }, [])
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <h1 className="p-4 text-xl font-semibold">TEvo Build Helper</h1>
-    </div>
+    <Layout>
+      {!ready ? <p className="text-sm text-neutral-400">Loading…</p> : route.page === 'characters' ? <CharactersPage /> : null}
+    </Layout>
   )
 }
