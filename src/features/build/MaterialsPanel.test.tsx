@@ -86,14 +86,13 @@ test('says nothing is left to farm, still listing what is owned', () => {
   expect(screen.getByRole('button', { name: 'Already have · 3' })).toBeInTheDocument()
 })
 
-test('a crafted item expands to show its recipe, nested', () => {
+test('an owned crafted item expands to what it is used in, like the rows above', () => {
   renderPanel()
   openAlreadyHave()
-  const hellDiamond = screen.getByRole('button', { name: 'Show materials for Hell Diamond' }).closest('li')!
-  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Hell Diamond' }))
-  expect(within(hellDiamond).getAllByTestId('recipe-part').map(r => r.textContent)).toEqual(['Ruby×1', '▸Pre-fusion 1×1'])
-  fireEvent.click(within(hellDiamond).getByRole('button', { name: 'Show materials for Pre-fusion 1' }))
-  expect(within(hellDiamond).getAllByTestId('recipe-part').map(r => r.textContent)).toContain('Diabolic Orb×2')
+  expect(screen.queryByRole('button', { name: 'Show materials for Hell Diamond' })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show uses of Hell Diamond' }))
+  expect(screen.getAllByTestId('material-use').map(r => r.textContent)).toEqual(['Glow Orb×1'])
+  expect(screen.queryByTestId('recipe-part')).not.toBeInTheDocument()
 })
 
 test('a base material expands to show what it is used in, and for which goal', () => {

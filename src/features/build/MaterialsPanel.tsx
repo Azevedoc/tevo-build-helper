@@ -11,8 +11,8 @@ interface Props {
   owned: Map<string, number>
 }
 
-// Child rows hang off a guide line under the parent's icon.
-const CHILDREN = 'ml-[34px] mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2'
+// Child rows hang off a guide line under the parent's icon, which matches the goal rows' size.
+const CHILDREN = 'ml-[40px] mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2'
 const CHILD_ROW = 'flex items-center gap-2 text-sm'
 
 /** Materials still to farm grouped by source, then the owned ones the goals use, as owned out of needed. */
@@ -75,28 +75,26 @@ function AlreadyHave(props: { rows: MaterialRow[]; have: (row: MaterialRow) => n
   )
 }
 
-/** A material as owned out of needed; a crafted item expands to its recipe, a base one to what uses it. */
+/** A material as owned out of needed; it expands to show what uses it, and for which goal. */
 function MaterialLine({ row, have, items }: { row: MaterialRow; have: number; items: Map<string, Item> }) {
   const [open, setOpen] = useState(false)
   const it = items.get(row.itemId)
   const name = it?.name ?? row.itemId
-  const recipe = row.isBase ? undefined : it?.recipe
-  const expandable = recipe !== undefined || row.breakdown.length > 0
   return (
     <li>
       <div data-testid="material-row" className="flex items-center gap-2 text-sm">
-        {expandable ? (
-          <ExpandButton open={open} name={name} what={recipe ? 'materials for' : 'uses of'} onToggle={() => setOpen(!open)} />
+        {row.breakdown.length > 0 ? (
+          <ExpandButton open={open} name={name} what="uses of" onToggle={() => setOpen(!open)} />
         ) : (
           <span className="w-4 shrink-0" />
         )}
-        {it && <ItemIcon item={it} size={20} />}
+        {it && <ItemIcon item={it} />}
         <span className="min-w-0 flex-1 truncate">{name}</span>
         <span className={`text-xs tabular-nums ${have >= row.need ? 'text-emerald-400' : 'text-neutral-400'}`}>
           {have}/{row.need}
         </span>
       </div>
-      {open && (recipe ? <RecipeParts recipe={recipe} items={items} /> : <Uses row={row} items={items} />)}
+      {open && <Uses row={row} items={items} />}
     </li>
   )
 }
@@ -120,33 +118,5 @@ function Uses({ row, items }: { row: MaterialRow; items: Map<string, Item> }) {
         )
       })}
     </ul>
-  )
-}
-
-/** An item's recipe; a crafted input expands to show its own recipe. */
-function RecipeParts({ recipe, items }: { recipe: NonNullable<Item['recipe']>; items: Map<string, Item> }) {
-  return (
-    <ul className={CHILDREN}>
-      {recipe.map(({ item, qty }) => (
-        <RecipePart key={item} itemId={item} qty={qty} items={items} />
-      ))}
-    </ul>
-  )
-}
-
-function RecipePart({ itemId, qty, items }: { itemId: string; qty: number; items: Map<string, Item> }) {
-  const [open, setOpen] = useState(false)
-  const it = items.get(itemId)
-  const name = it?.name ?? itemId
-  return (
-    <li>
-      <div data-testid="recipe-part" className={CHILD_ROW}>
-        {it?.recipe ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
-        {it && <ItemIcon item={it} size={20} />}
-        <span className="min-w-0 flex-1 truncate">{name}</span>
-        <span className="text-xs tabular-nums text-neutral-400">×{qty}</span>
-      </div>
-      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
-    </li>
   )
 }
