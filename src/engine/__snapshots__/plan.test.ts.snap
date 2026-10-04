@@ -1,0 +1,127 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`real dataset: Hyperion plan 1`] = `
+{
+  "bySource": [
+    {
+      "items": [
+        {
+          "itemId": "mythical-armor-piece",
+          "missing": 1,
+        },
+      ],
+      "where": "Blacksmith",
+    },
+    {
+      "items": [
+        {
+          "itemId": "blessing-of-darkness",
+          "missing": 1,
+        },
+      ],
+      "tier": "Imp 1",
+      "where": "City of Illusions",
+    },
+    {
+      "items": [
+        {
+          "itemId": "golden-fragment",
+          "missing": 1,
+        },
+      ],
+      "where": "Fragmented Soul",
+    },
+    {
+      "items": [
+        {
+          "itemId": "diamond",
+          "missing": 1,
+        },
+      ],
+      "where": "Gemstone",
+    },
+  ],
+  "goals": [
+    {
+      "coveredUnits": 0,
+      "goalId": "hyperion",
+      "progress": 0,
+      "status": "not-started",
+      "totalUnits": 4,
+    },
+  ],
+  "materials": [
+    {
+      "breakdown": [
+        {
+          "count": 1,
+          "goalId": "hyperion",
+          "parentId": "hyperion",
+        },
+      ],
+      "isBase": true,
+      "itemId": "blessing-of-darkness",
+      "missing": 1,
+      "need": 1,
+      "own": 0,
+    },
+    {
+      "breakdown": [
+        {
+          "count": 1,
+          "goalId": "hyperion",
+          "parentId": "hyperion",
+        },
+      ],
+      "isBase": true,
+      "itemId": "diamond",
+      "missing": 1,
+      "need": 1,
+      "own": 0,
+    },
+    {
+      "breakdown": [
+        {
+          "count": 1,
+          "goalId": "hyperion",
+          "parentId": "hyperion",
+        },
+      ],
+      "isBase": true,
+      "itemId": "golden-fragment",
+      "missing": 1,
+      "need": 1,
+      "own": 0,
+    },
+    {
+      "breakdown": [
+        {
+          "count": 1,
+          "goalId": "hyperion",
+          "parentId": null,
+        },
+      ],
+      "isBase": false,
+      "itemId": "hyperion",
+      "missing": 1,
+      "need": 1,
+      "own": 0,
+    },
+    {
+      "breakdown": [
+        {
+          "count": 1,
+          "goalId": "hyperion",
+          "parentId": "hyperion",
+        },
+      ],
+      "isBase": true,
+      "itemId": "mythical-armor-piece",
+      "missing": 1,
+      "need": 1,
+      "own": 0,
+    },
+  ],
+  "unknownGoals": [],
+}
+`;
