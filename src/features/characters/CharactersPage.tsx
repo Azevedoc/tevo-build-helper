@@ -11,13 +11,14 @@ import { FolderImport } from './FolderImport'
 export function CharactersPage() {
   const characters = useAppStore(s => s.characters)
   const builds = useAppStore(s => s.builds)
+  const hasSaveFolder = useAppStore(s => s.hasSaveFolder)
   const [notice, setNotice] = useState<Notice | null>(null)
   const sorted = [...characters].sort((a, b) => a.id.localeCompare(b.id))
 
   return (
     <div className="space-y-4">
       <FolderImport onNotice={setNotice} />
-      <DropZone onNotice={setNotice} />
+      {!hasSaveFolder && <DropZone onNotice={setNotice} />}
       {notice && (
         <div
           className={`rounded px-3 py-2 text-sm ${notice.kind === 'error' ? 'bg-red-950 text-red-200' : 'bg-sky-950 text-sky-200'}`}

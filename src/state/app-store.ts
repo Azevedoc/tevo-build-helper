@@ -14,6 +14,8 @@ export interface AppState {
   persistent: boolean
   characters: Character[]
   builds: Build[]
+  /** A save folder was chosen, either remembered (Chrome, Edge) or uploaded at least once (other browsers). */
+  hasSaveFolder: boolean
   init(repo?: Repo): Promise<void>
   importSave(text: string, fileName: string, battleTag?: string): Promise<ImportResult>
   deleteCharacter(id: string): Promise<void>
@@ -26,9 +28,11 @@ export interface AppState {
   setGoals(buildId: string, goals: string[]): Promise<void>
   getSaveFolder(): Promise<FileSystemDirectoryHandle | undefined>
   setSaveFolder(handle: FileSystemDirectoryHandle): Promise<void>
+  markFolderUploaded(): Promise<void>
 }
 
 const SAVE_FOLDER_KEY = 'saveFolder'
+const FOLDER_UPLOADED_KEY = 'saveFolderUploaded'
 
 let repo: Repo | null = null
 const getRepo = (): Repo => {
@@ -55,11 +59,17 @@ export const useAppStore = create<AppState>()((set, get) => {
     persistent: false,
     characters: [],
     builds: [],
+    hasSaveFolder: false,
 
     async init(r) {
       repo = r ?? (await openRepo())
-      const [characters, builds] = await Promise.all([repo.listCharacters(), repo.listBuilds()])
-      set({ ready: true, persistent: repo.persistent, characters, builds })
+      const [characters, builds, folder, uploaded] = await Promise.all([
+        repo.listCharacters(),
+        repo.listBuilds(),
+        repo.getSetting(SAVE_FOLDER_KEY),
+        repo.getSetting(FOLDER_UPLOADED_KEY),
+      ])
+      set({ ready: true, persistent: repo.persistent, characters, builds, hasSaveFolder: !!folder || !!uploaded })
     },
 
     async importSave(text, fileName, battleTag) {
@@ -137,7 +147,13 @@ export const useAppStore = create<AppState>()((set, get) => {
     },
 
     async setSaveFolder(handle) {
+      set({ hasSaveFolder: true })
       await getRepo().putSetting(SAVE_FOLDER_KEY, handle)
+    },
+
+    async markFolderUploaded() {
+      set({ hasSaveFolder: true })
+      await getRepo().putSetting(FOLDER_UPLOADED_KEY, true)
     },
   }
 })

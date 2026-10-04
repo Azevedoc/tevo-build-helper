@@ -83,6 +83,7 @@ function PickedFolder({ busy, importAll, onNotice }: { busy: boolean; importAll:
 
 /** Other browsers can only upload the folder as it is now, so it has to be chosen again after each save. */
 function UploadedFolder({ busy, importAll }: { busy: boolean; importAll: ImportAll }) {
+  const markFolderUploaded = useAppStore(s => s.markFolderUploaded)
   return (
     <div className="space-y-2">
       <div role="note" className="rounded border border-amber-800 bg-amber-950/60 px-3 py-2 text-sm text-amber-200">
@@ -100,7 +101,8 @@ function UploadedFolder({ busy, importAll }: { busy: boolean; importAll: ImportA
             onChange={e => {
               const files = Array.from(e.target.files ?? [])
               e.target.value = ''
-              if (files.length) void importAll(() => readSaveFiles(files))
+              if (!files.length) return
+              void importAll(() => readSaveFiles(files)).then(markFolderUploaded)
             }}
           />
         </label>
