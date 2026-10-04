@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import fixture from '../../import/__fixtures__/paladin.txt?raw'
 import { useAppStore } from '../../state/app-store'
 import { createMemoryRepo } from '../../storage/repo'
@@ -53,10 +53,11 @@ test('an intermediate in the dropdown expands to show what it is made from', asy
   await store().setGoals(build.id, ['starlight-crystal'])
   render(<BuildPage characterId="local/Paladin" />)
   fireEvent.click(screen.getByRole('button', { name: 'Show materials for Starlight Crystal' }))
-  expect(screen.getByText('Draconic Trinity')).toBeInTheDocument()
-  expect(screen.queryByText('Dragon Egg')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Draconic Trinity' }))
-  expect(screen.getByText('Dragon Egg')).toBeInTheDocument()
+  const goal = screen.getByTestId('goal-row').closest('li')!
+  expect(within(goal).getByText('Draconic Trinity')).toBeInTheDocument()
+  expect(within(goal).queryByText('Dragon Egg')).not.toBeInTheDocument()
+  fireEvent.click(within(goal).getByRole('button', { name: 'Show materials for Draconic Trinity' }))
+  expect(within(goal).getByText('Dragon Egg')).toBeInTheDocument()
 })
 
 test('an obtained goal has no materials dropdown', async () => {
@@ -75,7 +76,7 @@ test('materials panel lists what is left to farm for the active build', async ()
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['blazes-touch'])
   render(<BuildPage characterId="local/Paladin" />)
-  expect(screen.getByTestId('source-group')).toHaveTextContent("Blaze's Touch ×1")
+  expect(screen.getByTestId('source-group')).toHaveTextContent("Blaze's Touch0/1")
 })
 
 test('materials panel empty state', async () => {

@@ -7,135 +7,119 @@ import { ExpandButton } from './ExpandButton'
 interface Props {
   plan: PlanResult
   items: Map<string, Item>
-  /** Everything the character owns, so the owned view can show what is beyond the goals' needs. */
+  /** Everything the character owns, so a row can show what is beyond the goals' needs. */
   owned: Map<string, number>
 }
-
-type Tab = 'farm' | 'owned'
 
 // Child rows hang off a guide line under the parent's icon.
 const CHILDREN = 'ml-[34px] mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2'
 const CHILD_ROW = 'flex items-center gap-2 text-sm'
 
+/** Materials still to farm grouped by source, then the owned ones the goals use, as owned out of needed. */
 export function MaterialsPanel({ plan, items, owned }: Props) {
-  const [tab, setTab] = useState<Tab>('farm')
-  const tabClass = (t: Tab) =>
-    `rounded px-2 py-0.5 text-sm ${tab === t ? 'bg-neutral-700 text-neutral-100' : 'text-neutral-400 hover:text-neutral-100'}`
+  const rows = new Map(plan.materials.map(m => [m.itemId, m]))
+  const have = (row: MaterialRow) => owned.get(row.itemId) ?? row.own
+  const name = (id: string) => items.get(id)?.name ?? id
+  // Base items still missing are farmed; owned crafted items whose missing copies were broken down still show here.
+  const alreadyHave = plan.materials
+    .filter(m => m.own > 0 && (m.missing === 0 || !m.isBase))
+    .sort((a, b) => name(a.itemId).localeCompare(name(b.itemId), undefined, { numeric: true }))
 
   return (
-    <div className="space-y-2">
-      <div role="tablist" className="flex gap-1">
-        <button role="tab" aria-selected={tab === 'farm'} className={tabClass('farm')} onClick={() => setTab('farm')}>
-          To farm
-        </button>
-        <button role="tab" aria-selected={tab === 'owned'} className={tabClass('owned')} onClick={() => setTab('owned')}>
-          Owned
-        </button>
-      </div>
-      {tab === 'farm' ? <ToFarm plan={plan} items={items} /> : <OwnedView plan={plan} items={items} owned={owned} />}
+    <div className="space-y-3">
+      {plan.bySource.length === 0 && <p className="text-sm text-neutral-400">Nothing left to farm.</p>}
+      {plan.bySource.length > 0 && (
+        <ul className="space-y-3">
+          {plan.bySource.map(group => (
+            <li key={`${group.where}|${group.tier ?? ''}`} data-testid="source-group" className="rounded border border-neutral-800 p-2">
+              <div className="mb-1 text-sm font-semibold">
+                {group.where}
+                {group.tier && ` · ${group.tier}`}
+              </div>
+              <ul className="space-y-0.5">
+                {group.items.map(({ itemId }) => {
+                  const row = rows.get(itemId)
+                  return row && <MaterialLine key={itemId} row={row} have={have(row)} items={items} />
+                })}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+      {alreadyHave.length > 0 && <AlreadyHave rows={alreadyHave} have={have} items={items} />}
     </div>
   )
 }
 
-function ToFarm({ plan, items }: Omit<Props, 'owned'>) {
-  const rows = new Map(plan.materials.map(m => [m.itemId, m]))
-  if (plan.bySource.length === 0) return <p className="text-sm text-neutral-400">Nothing left to farm.</p>
-
+function AlreadyHave(props: { rows: MaterialRow[]; have: (row: MaterialRow) => number; items: Map<string, Item> }) {
+  const { rows, have, items } = props
+  const [open, setOpen] = useState(false)
   return (
-    <ul className="space-y-3">
-      {plan.bySource.map(group => (
-        <li key={`${group.where}|${group.tier ?? ''}`} data-testid="source-group" className="rounded border border-neutral-800 p-2">
-          <div className="mb-1 text-sm font-semibold">
-            {group.where}
-            {group.tier && ` · ${group.tier}`}
-          </div>
-          <ul className="space-y-0.5">
-            {group.items.map(({ itemId, missing }) => (
-              <FarmRow key={itemId} itemId={itemId} missing={missing} row={rows.get(itemId)} items={items} />
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ul>
+    <div data-testid="already-have" className="rounded border border-neutral-800 p-2">
+      <button
+        aria-expanded={open}
+        className="flex items-center gap-2 text-sm font-semibold hover:text-neutral-100"
+        onClick={() => setOpen(!open)}
+      >
+        <span aria-hidden className="w-4 shrink-0 text-neutral-500">{open ? '▾' : '▸'}</span>
+        Already have · {rows.length}
+      </button>
+      {open && (
+        <ul className="mt-1 space-y-0.5">
+          {rows.map(row => (
+            <MaterialLine key={row.itemId} row={row} have={have(row)} items={items} />
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
-/** A material to farm; it expands to show which items use it, and for which goal. */
-function FarmRow(props: { itemId: string; missing: number; row: MaterialRow | undefined; items: Map<string, Item> }) {
-  const { itemId, missing, row, items } = props
+/** A material as owned out of needed; a crafted item expands to its recipe, a base one to what uses it. */
+function MaterialLine({ row, have, items }: { row: MaterialRow; have: number; items: Map<string, Item> }) {
   const [open, setOpen] = useState(false)
-  const it = items.get(itemId)
-  const name = it?.name ?? itemId
-  const uses = row?.breakdown ?? []
+  const it = items.get(row.itemId)
+  const name = it?.name ?? row.itemId
+  const recipe = row.isBase ? undefined : it?.recipe
+  const expandable = recipe !== undefined || row.breakdown.length > 0
   return (
     <li>
-      <div className="flex items-center gap-2 text-sm">
-        {uses.length > 0 ? (
-          <ExpandButton open={open} name={name} what="uses of" onToggle={() => setOpen(!open)} />
+      <div data-testid="material-row" className="flex items-center gap-2 text-sm">
+        {expandable ? (
+          <ExpandButton open={open} name={name} what={recipe ? 'materials for' : 'uses of'} onToggle={() => setOpen(!open)} />
         ) : (
           <span className="w-4 shrink-0" />
         )}
         {it && <ItemIcon item={it} size={20} />}
-        <span className="min-w-0 truncate">
-          {name} ×{missing}
-        </span>
-      </div>
-      {open && (
-        <ul className={CHILDREN}>
-          {uses.map(({ parentId, goalId, count }) => {
-            const user = items.get(parentId ?? goalId)
-            return (
-              <li key={`${parentId}|${goalId}`} data-testid="material-use" className={CHILD_ROW}>
-                {user && <ItemIcon item={user} size={20} />}
-                <span className="min-w-0 flex-1 truncate">
-                  {user?.name ?? parentId ?? goalId}
-                  {parentId !== null && parentId !== goalId && (
-                    <span className="ml-1 text-neutral-500">→ {items.get(goalId)?.name ?? goalId}</span>
-                  )}
-                </span>
-                <span className="text-xs tabular-nums text-neutral-400">×{count}</span>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-    </li>
-  )
-}
-
-/** Owned items the goals consume, as owned out of needed; a crafted item expands to show its recipe. */
-function OwnedView({ plan, items, owned }: Props) {
-  const name = (id: string) => items.get(id)?.name ?? id
-  const used = plan.materials
-    .filter(m => m.own > 0)
-    .sort((a, b) => name(a.itemId).localeCompare(name(b.itemId), undefined, { numeric: true }))
-  if (used.length === 0) return <p className="text-sm text-neutral-400">Nothing you own is used by these goals yet.</p>
-
-  return (
-    <ul className="space-y-0.5">
-      {used.map(({ itemId, own, need }) => (
-        <OwnedRow key={itemId} itemId={itemId} have={owned.get(itemId) ?? own} need={need} items={items} />
-      ))}
-    </ul>
-  )
-}
-
-function OwnedRow({ itemId, have, need, items }: { itemId: string; have: number; need: number; items: Map<string, Item> }) {
-  const [open, setOpen] = useState(false)
-  const it = items.get(itemId)
-  const name = it?.name ?? itemId
-  return (
-    <li>
-      <div data-testid="owned-row" className="flex items-center gap-2 text-sm">
-        {it?.recipe ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
-        {it && <ItemIcon item={it} size={20} />}
         <span className="min-w-0 flex-1 truncate">{name}</span>
-        <span className={`text-xs tabular-nums ${have >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
-          {have}/{need}
+        <span className={`text-xs tabular-nums ${have >= row.need ? 'text-emerald-400' : 'text-neutral-400'}`}>
+          {have}/{row.need}
         </span>
       </div>
-      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
+      {open && (recipe ? <RecipeParts recipe={recipe} items={items} /> : <Uses row={row} items={items} />)}
     </li>
+  )
+}
+
+function Uses({ row, items }: { row: MaterialRow; items: Map<string, Item> }) {
+  return (
+    <ul className={CHILDREN}>
+      {row.breakdown.map(({ parentId, goalId, count }) => {
+        const user = items.get(parentId ?? goalId)
+        return (
+          <li key={`${parentId}|${goalId}`} data-testid="material-use" className={CHILD_ROW}>
+            {user && <ItemIcon item={user} size={20} />}
+            <span className="min-w-0 flex-1 truncate">
+              {user?.name ?? parentId ?? goalId}
+              {parentId !== null && parentId !== goalId && (
+                <span className="ml-1 text-neutral-500">→ {items.get(goalId)?.name ?? goalId}</span>
+              )}
+            </span>
+            <span className="text-xs tabular-nums text-neutral-400">×{count}</span>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 
