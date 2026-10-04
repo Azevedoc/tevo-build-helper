@@ -61,7 +61,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
           <section className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Materials</h3>
             {plan && plan.materials.length > 0 ? (
-              <MaterialsPanel plan={plan} items={dataset.items} />
+              <MaterialsPanel plan={plan} items={dataset.items} owned={owned} />
             ) : (
               <p className="text-sm text-neutral-400">Add a goal to see materials.</p>
             )}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import type { Item } from '../../data/types'
 import { UNKNOWN_SOURCE, type PlanResult } from '../../engine/plan'
 import { MaterialsPanel } from './MaterialsPanel'
@@ -34,18 +34,28 @@ const plan: PlanResult = {
   ],
 }
 
-const renderPanel = () => render(<MaterialsPanel plan={plan} items={items} />)
+const renderPanel = (owned = new Map([['diabolic-orb', 3], ['ruby', 2]])) => render(<MaterialsPanel plan={plan} items={items} owned={owned} />)
 
 test('groups missing materials by source, unknown last', () => {
   renderPanel()
-  expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+  expect(screen.getByRole('tab', { name: 'To farm' })).toHaveAttribute('aria-selected', 'true')
   const groups = screen.getAllByTestId('source-group')
   expect(groups[0]).toHaveTextContent('Agahnim · H2')
   expect(groups[0]).toHaveTextContent('Ruby ×2')
   expect(groups[1]).toHaveTextContent(UNKNOWN_SOURCE)
 })
 
-test('owned counts cannot be adjusted by hand', () => {
+test('owned tab lists owned items used by the goals, with the surplus owned', () => {
   renderPanel()
-  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('tab', { name: 'Owned' }))
+  const rows = screen.getAllByTestId('owned-row')
+  expect(rows.map(r => r.textContent)).toEqual(['Diabolic Orb ×1of 3 owned', 'Ruby ×2'])
+  expect(screen.queryByTestId('source-group')).not.toBeInTheDocument()
+})
+
+test('owned tab says when nothing owned is used', () => {
+  const nothingOwned = { ...plan, materials: plan.materials.map(m => ({ ...m, own: 0, missing: m.need })) }
+  render(<MaterialsPanel plan={nothingOwned} items={items} owned={new Map()} />)
+  fireEvent.click(screen.getByRole('tab', { name: 'Owned' }))
+  expect(screen.getByText('Nothing you own is used by these goals yet.')).toBeInTheDocument()
 })
