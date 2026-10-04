@@ -1,0 +1,25 @@
+function PreloadFiles takes nothing returns nothing
+
+	call PreloadStart()
+	call Preload( "MAP: Twilight's Eve Evo" )
+	call Preload( "Hero: Paladin" )
+	call Preload( "Gold: 123456" )
+	call Preload( "Power Shard: 42" )
+	call Preload( "        " )
+	call Preload( "Item 1: Hyperion" )
+	call Preload( "Item 2: Glow Orb" )
+	call Preload( "Item 3: Diamond" )
+	call Preload( "Item 4: " )
+	call Preload( "Item 5: " )
+	call Preload( "Item 6: " )
+	call Preload( "        " )
+	call Preload( "Stash Item 1: Ruby" )
+	call Preload( "Stash Item 2: " )
+	call Preload( "Stash2 Item 4: Ruby" )
+	call Preload( "        " )
+	call Preload( "Mysterious Notes: 3" )
+	call Preload( "City of Illusions Prestige: 2" )
+	call Preload( "-l ABCD-EFGH-1234" )
+	call PreloadEnd( 0.0 )
+
+endfunction
