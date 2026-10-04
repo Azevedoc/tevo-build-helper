@@ -49,3 +49,16 @@ test('unknown character shows a not-found message', () => {
   render(<BuildPage characterId="nobody" />)
   expect(screen.getByText('Character not found.')).toBeInTheDocument()
 })
+
+test('materials panel shows totals for the active build', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['hell-diamond'])
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.getByTestId('material-hell-diamond')).toHaveTextContent('need 1')
+})
+
+test('materials panel empty state', async () => {
+  await store().createBuild('local/Paladin', 'B')
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.getByText('Add a goal to see materials.')).toBeInTheDocument()
+})

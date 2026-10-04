@@ -6,11 +6,13 @@ import { effectiveOwned } from '../../state/owned'
 import { BuildSelector } from './BuildSelector'
 import { GoalSearch } from './GoalSearch'
 import { GoalsList } from './GoalsList'
+import { MaterialsPanel } from './MaterialsPanel'
 
 export function BuildPage({ characterId }: { characterId: string }) {
   const character = useAppStore(s => s.characters.find(c => c.id === characterId))
   const allBuilds = useAppStore(s => s.builds)
   const setGoals = useAppStore(s => s.setGoals)
+  const adjust = useAppStore(s => s.adjust)
   const builds = useMemo(
     () => allBuilds.filter(b => b.characterId === characterId).sort((a, b) => a.name.localeCompare(b.name)),
     [allBuilds, characterId],
@@ -50,7 +52,14 @@ export function BuildPage({ characterId }: { characterId: string }) {
             <GoalSearch onAdd={id => void setGoals(active.id, [...active.goals, id])} />
             <GoalsList goals={active.goals} results={results} owned={owned} onChange={goals => void setGoals(active.id, goals)} />
           </section>
-          <section data-testid="materials-slot" />
+          <section className="space-y-3">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Materials</h3>
+            {plan && plan.materials.length > 0 ? (
+              <MaterialsPanel plan={plan} items={dataset.items} onAdjust={(itemId, delta) => void adjust(characterId, itemId, delta)} />
+            ) : (
+              <p className="text-sm text-neutral-400">Add a goal to see materials.</p>
+            )}
+          </section>
         </div>
       )}
     </div>
