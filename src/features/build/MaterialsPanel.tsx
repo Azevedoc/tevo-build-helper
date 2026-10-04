@@ -13,6 +13,11 @@ interface Props {
 
 type Tab = 'farm' | 'owned'
 
+// Child rows hang off a guide line under the parent's icon, smaller than the parent.
+const CHILDREN = 'ml-[34px] mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2'
+const NESTED_CHILDREN = 'ml-[30px] mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2'
+const CHILD_ROW = 'flex items-center gap-1.5 text-xs text-neutral-300'
+
 export function MaterialsPanel({ plan, items, owned }: Props) {
   const [tab, setTab] = useState<Tab>('farm')
   const tabClass = (t: Tab) =>
@@ -77,16 +82,16 @@ function FarmRow(props: { itemId: string; missing: number; row: MaterialRow | un
         </span>
       </div>
       {open && (
-        <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-neutral-800 pl-3">
+        <ul className={CHILDREN}>
           {uses.map(({ parentId, goalId, count }) => {
             const user = items.get(parentId ?? goalId)
             return (
-              <li key={`${parentId}|${goalId}`} data-testid="material-use" className="flex items-center gap-2 text-sm">
-                {user && <ItemIcon item={user} size={20} />}
+              <li key={`${parentId}|${goalId}`} data-testid="material-use" className={CHILD_ROW}>
+                {user && <ItemIcon item={user} size={16} />}
                 <span className="min-w-0 flex-1 truncate">
                   {user?.name ?? parentId ?? goalId}
                   {parentId !== null && parentId !== goalId && (
-                    <span className="text-neutral-500">→ {items.get(goalId)?.name ?? goalId}</span>
+                    <span className="ml-1 text-neutral-500">→ {items.get(goalId)?.name ?? goalId}</span>
                   )}
                 </span>
                 <span className="text-xs tabular-nums text-neutral-400">×{count}</span>
@@ -130,15 +135,16 @@ function OwnedRow({ itemId, have, need, items }: { itemId: string; have: number;
           {have}/{need}
         </span>
       </div>
-      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
+      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} indent={CHILDREN} />}
     </li>
   )
 }
 
 /** An item's recipe; a crafted input expands to show its own recipe. */
-function RecipeParts({ recipe, items }: { recipe: NonNullable<Item['recipe']>; items: Map<string, Item> }) {
+function RecipeParts(props: { recipe: NonNullable<Item['recipe']>; items: Map<string, Item>; indent: string }) {
+  const { recipe, items, indent } = props
   return (
-    <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-neutral-800 pl-3">
+    <ul className={indent}>
       {recipe.map(({ item, qty }) => (
         <RecipePart key={item} itemId={item} qty={qty} items={items} />
       ))}
@@ -152,13 +158,13 @@ function RecipePart({ itemId, qty, items }: { itemId: string; qty: number; items
   const name = it?.name ?? itemId
   return (
     <li>
-      <div data-testid="recipe-part" className="flex items-center gap-2 text-sm">
+      <div data-testid="recipe-part" className={CHILD_ROW}>
         {it?.recipe ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
-        {it && <ItemIcon item={it} size={20} />}
+        {it && <ItemIcon item={it} size={16} />}
         <span className="min-w-0 flex-1 truncate">{name}</span>
-        <span className="text-xs tabular-nums text-neutral-400">×{qty}</span>
+        <span className="tabular-nums text-neutral-400">×{qty}</span>
       </div>
-      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
+      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} indent={NESTED_CHILDREN} />}
     </li>
   )
 }
