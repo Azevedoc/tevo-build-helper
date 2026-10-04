@@ -17,10 +17,12 @@ const readTab = (): Tab => {
 interface Props {
   plan: PlanResult
   items: Map<string, Item>
+  /** Effective owned counts (what the player has, not what the plan consumes). */
+  owned: Map<string, number>
   onAdjust: (itemId: string, delta: number) => void
 }
 
-export function MaterialsPanel({ plan, items, onAdjust }: Props) {
+export function MaterialsPanel({ plan, items, owned, onAdjust }: Props) {
   const [tab, setTabState] = useState<Tab>(readTab)
   const setTab = (t: Tab) => {
     setTabState(t)
@@ -51,7 +53,7 @@ export function MaterialsPanel({ plan, items, onAdjust }: Props) {
       {tab === 'material' ? (
         <ul className="space-y-1">
           {plan.materials.map(row => (
-            <MaterialRowView key={row.itemId} row={row} item={items.get(row.itemId)} nameOf={nameOf} onAdjust={onAdjust} />
+            <MaterialRowView key={row.itemId} row={row} item={items.get(row.itemId)} have={owned.get(row.itemId) ?? 0} nameOf={nameOf} onAdjust={onAdjust} />
           ))}
         </ul>
       ) : plan.bySource.length === 0 ? (
@@ -88,10 +90,11 @@ export function MaterialsPanel({ plan, items, onAdjust }: Props) {
 function MaterialRowView(props: {
   row: MaterialRow
   item?: Item
+  have: number
   nameOf: (id: string | null) => string
   onAdjust: (itemId: string, delta: number) => void
 }) {
-  const { row, item, nameOf, onAdjust } = props
+  const { row, item, have, nameOf, onAdjust } = props
   const name = nameOf(row.itemId)
   const tiers = [...new Set((item?.sources ?? []).map(s => s.tier).filter(Boolean))]
 
@@ -108,10 +111,10 @@ function MaterialRowView(props: {
           </span>
         ))}
         <span className="ml-auto whitespace-nowrap text-xs tabular-nums text-neutral-400">
-          need {row.need} · own {row.own} · missing {row.missing}
+          need {row.need} · have {have} · missing {row.missing}
         </span>
         {row.missing === 0 ? <span className="w-4 text-emerald-400">✓</span> : <span className="w-4" />}
-        <button aria-label={`Own one less ${name}`} className="px-1 text-neutral-500 hover:text-neutral-100" onClick={() => onAdjust(row.itemId, -1)}>
+        <button aria-label={`Own one less ${name}`} disabled={have === 0} className="px-1 text-neutral-500 hover:text-neutral-100 disabled:opacity-30" onClick={() => onAdjust(row.itemId, -1)}>
           −
         </button>
         <button aria-label={`Own one more ${name}`} className="px-1 text-neutral-500 hover:text-neutral-100" onClick={() => onAdjust(row.itemId, 1)}>

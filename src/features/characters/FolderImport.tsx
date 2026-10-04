@@ -19,9 +19,11 @@ export function FolderImport({ onNotice }: { onNotice: (n: Notice) => void }) {
     try {
       const saves = await readSaveFolder(handle)
       const failures: string[] = []
+      let cleared = 0
       for (const s of saves) {
         const r = await importSave(s.text, s.fileName, s.battleTag)
         if (!r.ok) failures.push(`${s.battleTag}/${s.classFolder}`)
+        else if (r.clearedAdjustments) cleared++
       }
       const imported = saves.length - failures.length
       onNotice({
@@ -29,6 +31,7 @@ export function FolderImport({ onNotice }: { onNotice: (n: Notice) => void }) {
         text:
           `Imported ${imported} character${imported === 1 ? '' : 's'}` +
           (failures.length ? `. Couldn't read: ${failures.join(', ')}` : '') +
+          (cleared ? `. Manual adjustments were cleared for ${cleared} character${cleared === 1 ? '' : 's'}.` : '') +
           (saves.length === 0 ? '. No save files found — pick the folder that contains your BattleTag folders.' : ''),
       })
     } catch {

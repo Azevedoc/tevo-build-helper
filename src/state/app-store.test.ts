@@ -81,3 +81,27 @@ test('remembers the save folder handle', async () => {
   await store().setSaveFolder(handle)
   expect(await store().getSaveFolder()).toBe(handle)
 })
+
+test('adjustments never go below what makes the owned count zero', async () => {
+  await store().importSave(fixture, '[Level 312].txt') // owns 2 Rubies, 0 Blood Diamonds
+  for (let i = 0; i < 4; i++) await store().adjust('local/Paladin', 'ruby', -1)
+  await store().adjust('local/Paladin', 'ruby', 1)
+  expect(store().characters[0].adjustments.ruby).toBe(-1)
+  await store().adjust('local/Paladin', 'blood-diamond', -1)
+  await store().adjust('local/Paladin', 'blood-diamond', 1)
+  expect(store().characters[0].adjustments['blood-diamond']).toBe(1)
+})
+
+test('concurrent adjustments are not lost', async () => {
+  await store().importSave(fixture, '[Level 312].txt')
+  await Promise.all([store().adjust('local/Paladin', 'ruby', 1), store().adjust('local/Paladin', 'ruby', 1)])
+  expect(store().characters[0].adjustments.ruby).toBe(2)
+})
+
+test('state updates before persistence resolves', async () => {
+  await store().importSave(fixture, '[Level 312].txt')
+  const build = await store().createBuild('local/Paladin', 'B')
+  const pending = store().setGoals(build.id, ['ruby'])
+  expect(store().builds[0].goals).toEqual(['ruby'])
+  await pending
+})

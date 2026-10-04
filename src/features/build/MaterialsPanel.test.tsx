@@ -35,7 +35,7 @@ const plan: PlanResult = {
 }
 
 const renderPanel = (onAdjust = vi.fn()) => {
-  render(<MaterialsPanel plan={plan} items={items} onAdjust={onAdjust} />)
+  render(<MaterialsPanel plan={plan} items={items} owned={new Map([['diabolic-orb', 3]])} onAdjust={onAdjust} />)
   return onAdjust
 }
 
@@ -44,7 +44,8 @@ beforeEach(() => localStorage.clear())
 test('by material shows totals, tier and breakdown', () => {
   renderPanel()
   const row = screen.getByTestId('material-diabolic-orb')
-  expect(row).toHaveTextContent('need 6 · own 1 · missing 5')
+  // 'have' is the real owned count (3), even when the plan only uses 1 of them
+  expect(row).toHaveTextContent('need 6 · have 3 · missing 5')
   expect(row).toHaveTextContent('H1')
   expect(row).toHaveTextContent('2 × via Hell Diamond (for Glow Orb)')
   expect(row).toHaveTextContent('4 × via Pre-fusion 1 (for Celestial Blade)')

@@ -38,14 +38,17 @@ const getRepo = (): Repo => {
 }
 
 export const useAppStore = create<AppState>()((set, get) => {
+  // State is updated synchronously before persisting, so rapid successive actions build on each other's
+  // results instead of racing on a stale snapshot, and the UI never snaps back while a write is pending.
   const saveCharacter = async (c: Character) => {
+    const others = get().characters.filter(x => x.id !== c.id)
+    set({ characters: [...others, c] })
     await getRepo().putCharacter(c)
-    set({ characters: [...get().characters.filter(x => x.id !== c.id), c] })
   }
   const saveBuilds = async (changed: Build[]) => {
-    for (const b of changed) await getRepo().putBuild(b)
     const ids = new Set(changed.map(b => b.id))
     set({ builds: [...get().builds.filter(b => !ids.has(b.id)), ...changed] })
+    for (const b of changed) await getRepo().putBuild(b)
   }
 
   return {
@@ -89,7 +92,8 @@ export const useAppStore = create<AppState>()((set, get) => {
     async adjust(characterId, itemId, delta) {
       const c = get().characters.find(x => x.id === characterId)
       if (!c) return
-      const next = (c.adjustments[itemId] ?? 0) + delta
+      // Never adjust below the point where the owned count is zero, so "+" always has a visible effect.
+      const next = Math.max((c.adjustments[itemId] ?? 0) + delta, -(c.imported[itemId] ?? 0))
       const adjustments = { ...c.adjustments }
       if (next === 0) delete adjustments[itemId]
       else adjustments[itemId] = next
