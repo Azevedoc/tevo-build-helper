@@ -32,15 +32,22 @@ export function CharactersPage() {
         </div>
       )}
       {characters.length > 0 && (
-        <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-neutral-300">
-          <input
-            type="checkbox"
-            className="accent-sky-600"
-            checked={onlyFourthClass}
-            onChange={e => void setOnlyFourthClass(e.target.checked)}
-          />
+        <button
+          type="button"
+          role="switch"
+          aria-checked={onlyFourthClass}
+          onClick={() => void setOnlyFourthClass(!onlyFourthClass)}
+          className="flex w-fit cursor-pointer items-center gap-2 text-sm text-neutral-300"
+        >
+          <span
+            className={`relative h-5 w-9 rounded-full transition-colors ${onlyFourthClass ? 'bg-sky-600' : 'bg-neutral-700'}`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${onlyFourthClass ? 'translate-x-4' : ''}`}
+            />
+          </span>
           Only 4th class
-        </label>
+        </button>
       )}
       {characters.length === 0 ? (
         <p className="text-sm text-neutral-400">No characters yet. Import a save file to get started.</p>
