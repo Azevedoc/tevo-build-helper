@@ -7,7 +7,6 @@ export interface Character {
   importedAt: string
   imported: Record<string, number>
   unknownNames: string[]
-  adjustments: Record<string, number>
 }
 
 export interface Build {

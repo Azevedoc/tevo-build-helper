@@ -12,7 +12,6 @@ export function DropZone({ onNotice }: { onNotice: (n: Notice) => void }) {
     for (const file of Array.from(files ?? [])) {
       const result = await importSave(await file.text(), file.name)
       if (!result.ok) onNotice({ kind: 'error', text: `${result.error}: ${file.name}` })
-      else if (result.clearedAdjustments) onNotice({ kind: 'info', text: 'Manual adjustments were cleared by this import.' })
     }
   }
 

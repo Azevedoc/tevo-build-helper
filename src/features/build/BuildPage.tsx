@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { dataset } from '../../data/dataset'
 import { planBuild, type GoalResult } from '../../engine/plan'
 import { useAppStore } from '../../state/app-store'
-import { effectiveOwned } from '../../state/owned'
+import { ownedCounts } from '../../state/owned'
 import { BuildSelector } from './BuildSelector'
 import { GoalSearch } from './GoalSearch'
 import { GoalsList } from './GoalsList'
@@ -12,7 +12,6 @@ export function BuildPage({ characterId }: { characterId: string }) {
   const character = useAppStore(s => s.characters.find(c => c.id === characterId))
   const allBuilds = useAppStore(s => s.builds)
   const setGoals = useAppStore(s => s.setGoals)
-  const adjust = useAppStore(s => s.adjust)
   const builds = useMemo(
     () => allBuilds.filter(b => b.characterId === characterId).sort((a, b) => a.name.localeCompare(b.name)),
     [allBuilds, characterId],
@@ -20,7 +19,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
   const active = builds.find(b => b.active)
   // The game allows only one of each item, so a goal appears once; this also collapses duplicates saved earlier.
   const goals = useMemo(() => [...new Set(active?.goals ?? [])], [active])
-  const owned = useMemo(() => (character ? effectiveOwned(character) : new Map<string, number>()), [character])
+  const owned = useMemo(() => (character ? ownedCounts(character) : new Map<string, number>()), [character])
   const plan = useMemo(
     () => (active ? planBuild({ items: dataset.items, owned, goals }) : null),
     [active, goals, owned],
@@ -62,7 +61,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
           <section className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Materials</h3>
             {plan && plan.materials.length > 0 ? (
-              <MaterialsPanel plan={plan} items={dataset.items} owned={owned} onAdjust={(itemId, delta) => void adjust(characterId, itemId, delta)} />
+              <MaterialsPanel plan={plan} items={dataset.items} />
             ) : (
               <p className="text-sm text-neutral-400">Add a goal to see materials.</p>
             )}

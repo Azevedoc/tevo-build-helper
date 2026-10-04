@@ -3,7 +3,7 @@ import type { Build, Character } from './types'
 
 const character: Character = {
   id: 'local/Paladin', className: 'Paladin', level: 312, importedAt: '2026-10-04T00:00:00.000Z',
-  imported: { ruby: 2 }, unknownNames: [], adjustments: {},
+  imported: { ruby: 2 }, unknownNames: [],
 }
 const build: Build = { id: 'b1', characterId: 'local/Paladin', name: 'Tank', goals: ['hyperion'], active: true }
 

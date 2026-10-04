@@ -15,19 +15,19 @@ test('init marks the store ready and reports persistence', () => {
 
 test('importSave creates a character from a save file', async () => {
   const result = await store().importSave(fixture, '[Level 312].txt')
-  expect(result).toEqual({ ok: true, characterId: 'local/Paladin', unknownCount: 0, clearedAdjustments: false })
+  expect(result).toEqual({ ok: true, characterId: 'local/Paladin', unknownCount: 0 })
   const c = store().characters[0]
   expect(c).toMatchObject({ id: 'local/Paladin', className: 'Paladin', level: 312 })
   expect(c.imported).toMatchObject({ ruby: 2, hyperion: 1, 'glow-orb': 1, diamond: 1 })
 })
 
-test('re-import clears adjustments and keeps builds', async () => {
+test('re-import replaces the character and keeps builds', async () => {
   await store().importSave(fixture, '[Level 312].txt')
-  await store().adjust('local/Paladin', 'ruby', 1)
   await store().createBuild('local/Paladin', 'Tank')
   const result = await store().importSave(fixture, '[Level 313].txt')
-  expect(result).toMatchObject({ ok: true, clearedAdjustments: true })
-  expect(store().characters[0]).toMatchObject({ level: 313, adjustments: {} })
+  expect(result).toMatchObject({ ok: true })
+  expect(store().characters[0]).not.toHaveProperty('adjustments')
+  expect(store().characters[0]).toMatchObject({ level: 313 })
   expect(store().builds).toHaveLength(1)
 })
 
@@ -80,22 +80,6 @@ test('remembers the save folder handle', async () => {
   expect(await store().getSaveFolder()).toBeUndefined()
   await store().setSaveFolder(handle)
   expect(await store().getSaveFolder()).toBe(handle)
-})
-
-test('adjustments never go below what makes the owned count zero', async () => {
-  await store().importSave(fixture, '[Level 312].txt') // owns 2 Rubies, 0 Blood Diamonds
-  for (let i = 0; i < 4; i++) await store().adjust('local/Paladin', 'ruby', -1)
-  await store().adjust('local/Paladin', 'ruby', 1)
-  expect(store().characters[0].adjustments.ruby).toBe(-1)
-  await store().adjust('local/Paladin', 'blood-diamond', -1)
-  await store().adjust('local/Paladin', 'blood-diamond', 1)
-  expect(store().characters[0].adjustments['blood-diamond']).toBe(1)
-})
-
-test('concurrent adjustments are not lost', async () => {
-  await store().importSave(fixture, '[Level 312].txt')
-  await Promise.all([store().adjust('local/Paladin', 'ruby', 1), store().adjust('local/Paladin', 'ruby', 1)])
-  expect(store().characters[0].adjustments.ruby).toBe(2)
 })
 
 test('state updates before persistence resolves', async () => {

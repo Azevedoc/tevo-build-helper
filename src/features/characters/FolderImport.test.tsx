@@ -37,12 +37,10 @@ afterEach(() => {
   delete window.showDirectoryPicker
 })
 
-test('folder import reports when manual adjustments were cleared', async () => {
-  await useAppStore.getState().importSave(fixture, '[Level 300].txt', 'Tag#1')
-  await useAppStore.getState().adjust('Tag#1/Paladin', 'ruby', 1)
+test('folder import reports how many characters were imported', async () => {
   const onNotice = vi.fn()
   render(<FolderImport onNotice={onNotice} />)
   fireEvent.click(screen.getByRole('button', { name: 'Choose save folder' }))
   await vi.waitFor(() => expect(onNotice).toHaveBeenCalled())
-  expect(onNotice.mock.calls[0][0].text).toMatch(/Imported 1 character.*Manual adjustments were cleared for 1 character/)
+  expect(onNotice.mock.calls[0][0]).toEqual({ kind: 'info', text: 'Imported 1 character' })
 })

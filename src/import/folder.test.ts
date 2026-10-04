@@ -30,3 +30,9 @@ test('reads the newest [Level N] save per class folder for each BattleTag', asyn
   const saves = await readSaveFolder(root as unknown as FileSystemDirectoryHandle)
   expect(saves).toEqual([{ battleTag: 'Tag#1', classFolder: 'Paladin', fileName: '[Level 312].txt', text: 'new' }])
 })
+
+test('a re-saved [Level 300] file (max level, overwritten in place) wins over older level files', async () => {
+  const root = dir('root', [dir('Tag#1', [dir('Paladin', [file('[Level 299].txt', 'old', 100), file('[Level 300].txt', 'latest', 500)])])])
+  const saves = await readSaveFolder(root as unknown as FileSystemDirectoryHandle)
+  expect(saves.map(s => s.text)).toEqual(['latest'])
+})

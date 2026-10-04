@@ -3,7 +3,7 @@ import { toHash } from '../../app/route'
 import { dataset } from '../../data/dataset'
 import { planBuild } from '../../engine/plan'
 import { useAppStore } from '../../state/app-store'
-import { effectiveOwned } from '../../state/owned'
+import { ownedCounts } from '../../state/owned'
 import type { Build, Character } from '../../storage/types'
 import { DropZone, type Notice } from './DropZone'
 import { FolderImport } from './FolderImport'
@@ -43,7 +43,7 @@ function CharacterCard({ character: c, activeBuild }: { character: Character; ac
   const itemCount = Object.values(c.imported).reduce((a, b) => a + b, 0)
   const progress = useMemo(() => {
     if (!activeBuild) return null
-    const goals = planBuild({ items: dataset.items, owned: effectiveOwned(c), goals: activeBuild.goals }).goals
+    const goals = planBuild({ items: dataset.items, owned: ownedCounts(c), goals: activeBuild.goals }).goals
     return goals.length ? goals.reduce((sum, g) => sum + g.progress, 0) / goals.length : null
   }, [c, activeBuild])
 

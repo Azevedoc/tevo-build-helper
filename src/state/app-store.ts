@@ -6,7 +6,7 @@ import { openRepo, type Repo } from '../storage/repo'
 import type { Build, Character } from '../storage/types'
 
 export type ImportResult =
-  | { ok: true; characterId: string; unknownCount: number; clearedAdjustments: boolean }
+  | { ok: true; characterId: string; unknownCount: number }
   | { ok: false; error: string }
 
 export interface AppState {
@@ -16,7 +16,6 @@ export interface AppState {
   builds: Build[]
   init(repo?: Repo): Promise<void>
   importSave(text: string, fileName: string, battleTag?: string): Promise<ImportResult>
-  adjust(characterId: string, itemId: string, delta: number): Promise<void>
   deleteCharacter(id: string): Promise<void>
   /** The first build of a character becomes active. */
   createBuild(characterId: string, name: string): Promise<Build>
@@ -73,8 +72,6 @@ export const useAppStore = create<AppState>()((set, get) => {
       }
       const { owned, unknownNames } = matchNames(parsed.slotNames, dataset)
       const id = `${battleTag ?? 'local'}/${parsed.hero}`
-      const previous = get().characters.find(c => c.id === id)
-      const clearedAdjustments = !!previous && Object.keys(previous.adjustments).length > 0
       const character: Character = {
         id,
         className: parsed.hero,
@@ -83,21 +80,9 @@ export const useAppStore = create<AppState>()((set, get) => {
         importedAt: new Date().toISOString(),
         imported: owned,
         unknownNames,
-        adjustments: {},
       }
       await saveCharacter(character)
-      return { ok: true, characterId: id, unknownCount: unknownNames.length, clearedAdjustments }
-    },
-
-    async adjust(characterId, itemId, delta) {
-      const c = get().characters.find(x => x.id === characterId)
-      if (!c) return
-      // Never adjust below the point where the owned count is zero, so "+" always has a visible effect.
-      const next = Math.max((c.adjustments[itemId] ?? 0) + delta, -(c.imported[itemId] ?? 0))
-      const adjustments = { ...c.adjustments }
-      if (next === 0) delete adjustments[itemId]
-      else adjustments[itemId] = next
-      await saveCharacter({ ...c, adjustments })
+      return { ok: true, characterId: id, unknownCount: unknownNames.length }
     },
 
     async deleteCharacter(id) {

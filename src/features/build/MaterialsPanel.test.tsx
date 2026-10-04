@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import type { Item } from '../../data/types'
 import { UNKNOWN_SOURCE, type PlanResult } from '../../engine/plan'
 import { MaterialsPanel } from './MaterialsPanel'
@@ -34,10 +34,7 @@ const plan: PlanResult = {
   ],
 }
 
-const renderPanel = (onAdjust = vi.fn()) => {
-  render(<MaterialsPanel plan={plan} items={items} owned={new Map([['diabolic-orb', 3]])} onAdjust={onAdjust} />)
-  return onAdjust
-}
+const renderPanel = () => render(<MaterialsPanel plan={plan} items={items} />)
 
 test('groups missing materials by source, unknown last', () => {
   renderPanel()
@@ -48,9 +45,7 @@ test('groups missing materials by source, unknown last', () => {
   expect(groups[1]).toHaveTextContent(UNKNOWN_SOURCE)
 })
 
-test('+ and − adjust owned counts', () => {
-  const onAdjust = renderPanel()
-  fireEvent.click(screen.getByRole('button', { name: 'Own one more Ruby' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Own one less Diamond' }))
-  expect(onAdjust.mock.calls).toEqual([['ruby', 1]])
+test('owned counts cannot be adjusted by hand', () => {
+  renderPanel()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })
