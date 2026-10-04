@@ -13,7 +13,7 @@ The tool lets a player import their character's save file, pick goal items, and 
 - the total materials still needed across all goals, with a breakdown of *why* each amount is needed,
 - where each missing material comes from, grouped by source (farming checklist).
 
-It is a non-commercial community tool, built and maintained by AI. It is inspired by [EvoHelper](https://codeberg.org/ArgentumHeart/EvoHelper) (AGPL-3.0) but is a separate project: no code is copied and it has no runtime dependency on EvoHelper or its API.
+It is a non-commercial community tool, built and maintained by AI. It is inspired by [EvoHelper](https://codeberg.org/ArgentumHeart/EvoHelper) (AGPL-3.0) but is a separate project: no code is copied and it has no runtime dependency on EvoHelper or its API (the API is only called by a manual sync script, see below).
 
 ### Success criteria
 
@@ -33,7 +33,7 @@ It is a non-commercial community tool, built and maintained by AI. It is inspire
 
 ### 2.1 Source and provenance
 
-The map is protected, so data cannot be extracted from it. The dataset is **seeded once** from EvoHelper's public API (`https://evo-api.argentumheart.dev/sync`, map 7.39b) by a one-time script, converted into our own format, and committed. From then on, `data/items.json` in this repo is the sole source of truth and is curated by hand / PRs. The seed script is kept for provenance but is not part of the build or runtime.
+The map is protected, so data cannot be extracted from it. The dataset comes from EvoHelper's public API (`https://evo-api.argentumheart.dev/sync`). `npm run sync` (`scripts/sync-from-evohelper.ts`) is run by hand when a new map version ships: it converts the payload into our own format, writes `data/items.json`, `data/classes.json` and `public/icons/`, and prints what changed; the result is reviewed and committed. Local corrections live in the converter so each sync reapplies them. The sync is not part of the build, CI or the runtime. (Changed 2026-10-04 from a one-time seed with hand curation, so the data does not need to be maintained by hand.)
 
 Credit to EvoHelper and its author for the seed data goes in `THIRD-PARTY-NOTICES.md`, along with a notice that Warcraft III assets belong to Blizzard Entertainment and map data belongs to the map's authors.
 
@@ -190,7 +190,7 @@ Chosen for rapid deployment and ease of AI-driven maintenance: strong typing as 
 ```
 data/items.json
 public/icons/                    # item icons, served as static files
-scripts/seed-from-evohelper.ts   # one-time, provenance only
+scripts/sync-from-evohelper.ts   # manual, per map version
 scripts/validate-data.ts
 src/engine/                      # planner (§4)
 src/import/                      # save parser + folder reader (§3)

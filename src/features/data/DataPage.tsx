@@ -17,11 +17,11 @@ export function DataPage() {
           Map version {dataset.meta.mapVersion} · {dataset.items.size} items · last updated {dataset.meta.updatedAt}
         </p>
         <p className="text-neutral-400">
-          Item data was seeded from{' '}
+          Item data comes from{' '}
           <a className={link} href={EVOHELPER_URL} target="_blank" rel="noreferrer">
             EvoHelper
           </a>{' '}
-          by ArgentumHeart and is maintained in this project since. Warcraft III assets belong to Blizzard Entertainment;
+          by ArgentumHeart, synced into this project when a new map version ships. Warcraft III assets belong to Blizzard Entertainment;
           map data belongs to the Twilight's Eve Evo authors. Unofficial, non-commercial community tool.
         </p>
         <p>

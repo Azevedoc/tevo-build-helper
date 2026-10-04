@@ -9,8 +9,12 @@ export interface EvoSync {
     }[]
     itemRecipes: { id: number; outputId: number; inputId: number; quantity: number }[]
     itemRarities: { id: number; name: string }[]
+    classes?: { id: number; name: string; tier: number; parentId: number | null }[]
   }
 }
+
+// Our names for vendor sources, applied on every sync.
+const SOURCE_NAMES: Record<string, string> = { Gemstone: 'Gemstone NPC Vendor', 'Fragmented Soul': 'Fragment NPC Vendor' }
 
 export function slugify(name: string): string {
   return name
@@ -20,7 +24,10 @@ export function slugify(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function convertSync(raw: EvoSync, today: string): { dataset: Dataset; icons: { file: string; base64: string }[] } {
+export function convertSync(
+  raw: EvoSync,
+  today: string,
+): { dataset: Dataset; icons: { file: string; base64: string }[]; fourthClasses: string[] } {
   const rarityById = new Map(raw.data.itemRarities.map(r => [r.id, r.name.toLowerCase() as Rarity]))
 
   const slugById = new Map<number, string>()
@@ -38,14 +45,17 @@ export function convertSync(raw: EvoSync, today: string): { dataset: Dataset; ic
     const id = slugById.get(it.id)!
     const item: Item = { id, name: it.name, rarity: rarityById.get(it.rarityId)!, sources: [] }
     if (it.description) item.description = it.description
-    const effects = (it.effects ?? '').split('$').map(e => e.trim()).filter(Boolean)
+    const effects = (it.effects ?? '').split(/[$&]/).map(e => e.trim()).filter(Boolean)
     if (effects.length) item.effects = effects
     if (it.iconBase64) {
       item.icon = `${id}.png`
       icons.push({ file: item.icon, base64: it.iconBase64.replace(/^data:image\/png;base64,/, '') })
     }
     if (it.legacyItem) item.legacy = true
-    if (it.source) item.sources = [it.sourceShort ? { where: it.source, tier: it.sourceShort } : { where: it.source }]
+    if (it.source) {
+      const where = SOURCE_NAMES[it.source] ?? it.source
+      item.sources = [it.sourceShort ? { where, tier: it.sourceShort } : { where }]
+    }
 
     const qtyByInput = new Map<number, number>()
     for (const r of raw.data.itemRecipes) {
@@ -62,5 +72,6 @@ export function convertSync(raw: EvoSync, today: string): { dataset: Dataset; ic
   return {
     dataset: { mapVersion: raw.version, updatedAt: today, seededFrom: `EvoHelper API sync, map ${raw.version}, ${today}`, items },
     icons,
+    fourthClasses: (raw.data.classes ?? []).filter(c => c.tier === 4).map(c => c.name).sort(),
   }
 }

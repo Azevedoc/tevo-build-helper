@@ -5,9 +5,10 @@ The material below is not covered by that license and keeps its own terms.
 
 ## Item data
 
-The item dataset in `data/items.json` and the icons in `public/icons/` were seeded once from
+The item dataset in `data/items.json`, the class list in `data/classes.json` and the icons in `public/icons/` come from
 [EvoHelper](https://codeberg.org/ArgentumHeart/EvoHelper) by ArgentumHeart, via its public API
-(map 7.39b, 2026-10-04). Thank you! Since then the dataset has been maintained independently in this repository.
+(currently map 7.39b). Thank you! They are synced by hand with `npm run sync` when a new map version ships;
+the app itself never calls the API.
 No EvoHelper code is included in this project.
 
 ## Wiki builds

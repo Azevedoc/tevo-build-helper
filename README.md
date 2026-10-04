@@ -17,8 +17,17 @@ npm run build   # static build into dist/
 
 ## Updating item data
 
-The dataset lives in `data/items.json` (icons in `public/icons/`). Edit it, then run `npm run validate-data`
-to check references, cycles and names before committing. CI runs the same check.
+Item data (`data/items.json`, `data/classes.json`, `public/icons/`) comes from EvoHelper's public API. When a
+new map version ships, run:
+
+```sh
+npm run sync           # one request to the API; or: npm run sync -- saved-sync.json
+npm run validate-data  # references, cycles, names, icons and wiki build items
+```
+
+Review the printed report (added, removed and changed items) and the git diff, then commit. Don't edit
+`data/items.json` by hand: the next sync would overwrite it. Put corrections in `scripts/sync/convert.ts`
+instead. The sync is never run by CI or the app.
 
 ## License
 
@@ -31,9 +40,10 @@ The material below is not covered by that license and keeps its own terms.
 
 ### Item data
 
-The item dataset in `data/items.json` and the icons in `public/icons/` were seeded once from
+The item dataset in `data/items.json`, the class list in `data/classes.json` and the icons in `public/icons/` come from
 [EvoHelper](https://codeberg.org/ArgentumHeart/EvoHelper) by ArgentumHeart, via its public API
-(map 7.39b, 2026-10-04). Thank you! Since then the dataset has been maintained independently in this repository.
+(currently map 7.39b). Thank you! They are synced by hand with `npm run sync` when a new map version ships;
+the app itself never calls the API.
 No EvoHelper code is included in this project.
 
 ### Wiki builds

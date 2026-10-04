@@ -63,3 +63,24 @@ test('stamps metadata, sorts items, and produces a valid dataset', () => {
   expect(dataset.items.map(i => i.id)).toEqual(['deaths-edge', 'diamond', 'old-thing', 'ruby'])
   expect(validateDataset(dataset)).toEqual([])
 })
+
+test('applies our vendor source names so a re-sync keeps them', () => {
+  const { dataset } = convertSync(
+    { ...raw, data: { ...raw.data, items: [item({ id: 1, name: 'Ruby', source: 'Gemstone' }), item({ id: 2, name: 'Shard', source: 'Fragmented Soul' })] } },
+    '2026-10-04',
+  )
+  expect(dataset.items.map(i => i.sources)).toEqual([[{ where: 'Gemstone NPC Vendor' }], [{ where: 'Fragment NPC Vendor' }]])
+})
+
+test("also splits effects on & (Hyperion's effects use it once by mistake)", () => {
+  const { dataset } = convertSync({ ...raw, data: { ...raw.data, items: [item({ id: 1, name: 'Hyperion', effects: '+1 Agility$Passive: A.&Passive: B.' })] } }, 'x')
+  expect(dataset.items[0].effects).toEqual(['+1 Agility', 'Passive: A.', 'Passive: B.'])
+})
+
+test('lists the tier 4 classes, sorted', () => {
+  const classes = [
+    { id: 1, name: 'root', tier: -1, parentId: null }, { id: 2, name: 'Sniper', tier: 4, parentId: 3 },
+    { id: 3, name: 'Ranger', tier: 3, parentId: null }, { id: 4, name: 'Arch Sage', tier: 4, parentId: null },
+  ]
+  expect(convertSync({ ...raw, data: { ...raw.data, classes } }, 'x').fourthClasses).toEqual(['Arch Sage', 'Sniper'])
+})
