@@ -29,7 +29,7 @@ exports[`real dataset: Hyperion plan 1`] = `
           "missing": 1,
         },
       ],
-      "where": "Fragmented Soul",
+      "where": "Fragment NPC Vendor",
     },
     {
       "items": [
@@ -38,7 +38,7 @@ exports[`real dataset: Hyperion plan 1`] = `
           "missing": 1,
         },
       ],
-      "where": "Gemstone",
+      "where": "Gemstone NPC Vendor",
     },
   ],
   "goals": [

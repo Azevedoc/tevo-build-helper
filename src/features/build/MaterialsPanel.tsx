@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import type { Item } from '../../data/types'
-import type { PlanResult } from '../../engine/plan'
+import type { MaterialRow, PlanResult } from '../../engine/plan'
 import { ExpandButton } from './ExpandButton'
 
 interface Props {
@@ -34,6 +34,7 @@ export function MaterialsPanel({ plan, items, owned }: Props) {
 }
 
 function ToFarm({ plan, items }: Omit<Props, 'owned'>) {
+  const rows = new Map(plan.materials.map(m => [m.itemId, m]))
   if (plan.bySource.length === 0) return <p className="text-sm text-neutral-400">Nothing left to farm.</p>
 
   return (
@@ -45,21 +46,56 @@ function ToFarm({ plan, items }: Omit<Props, 'owned'>) {
             {group.tier && ` · ${group.tier}`}
           </div>
           <ul className="space-y-0.5">
-            {group.items.map(({ itemId, missing }) => {
-              const it = items.get(itemId)
-              return (
-                <li key={itemId} className="flex items-center gap-2 text-sm">
-                  {it && <ItemIcon item={it} size={20} />}
-                  <span className="min-w-0 truncate">
-                    {it?.name ?? itemId} ×{missing}
-                  </span>
-                </li>
-              )
-            })}
+            {group.items.map(({ itemId, missing }) => (
+              <FarmRow key={itemId} itemId={itemId} missing={missing} row={rows.get(itemId)} items={items} />
+            ))}
           </ul>
         </li>
       ))}
     </ul>
+  )
+}
+
+/** A material to farm; it expands to show which items use it, and for which goal. */
+function FarmRow(props: { itemId: string; missing: number; row: MaterialRow | undefined; items: Map<string, Item> }) {
+  const { itemId, missing, row, items } = props
+  const [open, setOpen] = useState(false)
+  const it = items.get(itemId)
+  const name = it?.name ?? itemId
+  const uses = row?.breakdown ?? []
+  return (
+    <li>
+      <div className="flex items-center gap-2 text-sm">
+        {uses.length > 0 ? (
+          <ExpandButton open={open} name={name} what="uses of" onToggle={() => setOpen(!open)} />
+        ) : (
+          <span className="w-4 shrink-0" />
+        )}
+        {it && <ItemIcon item={it} size={20} />}
+        <span className="min-w-0 truncate">
+          {name} ×{missing}
+        </span>
+      </div>
+      {open && (
+        <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-neutral-800 pl-3">
+          {uses.map(({ parentId, goalId, count }) => {
+            const user = items.get(parentId ?? goalId)
+            return (
+              <li key={`${parentId}|${goalId}`} data-testid="material-use" className="flex items-center gap-2 text-sm">
+                {user && <ItemIcon item={user} size={20} />}
+                <span className="min-w-0 flex-1 truncate">
+                  {user?.name ?? parentId ?? goalId}
+                  {parentId !== null && parentId !== goalId && (
+                    <span className="text-neutral-500">→ {items.get(goalId)?.name ?? goalId}</span>
+                  )}
+                </span>
+                <span className="text-xs tabular-nums text-neutral-400">×{count}</span>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </li>
   )
 }
 

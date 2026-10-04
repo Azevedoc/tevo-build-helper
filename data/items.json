@@ -82,7 +82,7 @@
       "rarity": "epic",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "A shiny gemstone, mysterious in color.",
@@ -1442,7 +1442,7 @@
       "rarity": "legendary",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in bright crimson.",
@@ -3141,7 +3141,7 @@
       "rarity": "godly",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "The rarest gemstone to be ever discovered. It shimmers very brightly and makes light bend on its surface.",
@@ -3803,7 +3803,7 @@
       "rarity": "uncommon",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "A gemstone that shines in viridescent color.",
@@ -4741,7 +4741,7 @@
       "rarity": "godly",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in bright golden color.",
@@ -5865,7 +5865,7 @@
       "rarity": "epic",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in the color of bright magenta.",
@@ -6558,7 +6558,7 @@
       "rarity": "uncommon",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in the color bright green.",
@@ -6778,7 +6778,7 @@
       "rarity": "rare",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in bright aqua.",
@@ -7209,7 +7209,7 @@
       "rarity": "common",
       "sources": [
         {
-          "where": "Fragmented Soul"
+          "where": "Fragment NPC Vendor"
         }
       ],
       "description": "A fragment that glows in pure gray.",
@@ -8205,7 +8205,7 @@
       "rarity": "legendary",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "A very rare gemstone with very high value. Glows in crimson red and shines very brightly.",
@@ -8363,7 +8363,7 @@
       "rarity": "rare",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "A bright gemstone that reflects the color of the ocean.",
@@ -8796,7 +8796,7 @@
       "rarity": "common",
       "sources": [
         {
-          "where": "Gemstone"
+          "where": "Gemstone NPC Vendor"
         }
       ],
       "description": "A stone that glows in bright quicksilver color.",

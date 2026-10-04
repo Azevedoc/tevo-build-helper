@@ -31,6 +31,7 @@ const plan: PlanResult = {
   ],
   bySource: [
     { where: 'Agahnim', tier: 'H2', items: [{ itemId: 'ruby', missing: 2 }] },
+    { where: 'Oblivion', tier: 'H1', items: [{ itemId: 'diabolic-orb', missing: 5 }] },
     { where: UNKNOWN_SOURCE, items: [{ itemId: 'diamond', missing: 1 }] },
   ],
 }
@@ -43,7 +44,7 @@ test('groups missing materials by source, unknown last', () => {
   const groups = screen.getAllByTestId('source-group')
   expect(groups[0]).toHaveTextContent('Agahnim · H2')
   expect(groups[0]).toHaveTextContent('Ruby ×2')
-  expect(groups[1]).toHaveTextContent(UNKNOWN_SOURCE)
+  expect(groups.at(-1)).toHaveTextContent(UNKNOWN_SOURCE)
 })
 
 test('owned tab shows owned out of needed for each item the goals use, green when enough', () => {
@@ -71,4 +72,17 @@ test('a crafted item in the owned tab expands to show its recipe, nested', () =>
   expect(screen.getAllByTestId('recipe-part').map(r => r.textContent)).toEqual(['Ruby×1', '▸Pre-fusion 1×1'])
   fireEvent.click(screen.getByRole('button', { name: 'Show materials for Pre-fusion 1' }))
   expect(screen.getAllByTestId('recipe-part').map(r => r.textContent)).toContain('Diabolic Orb×2')
+})
+
+test('a material to farm expands to show what it is used in, and for which goal', () => {
+  renderPanel()
+  expect(screen.queryByRole('button', { name: 'Show uses of Diamond' })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show uses of Ruby' }))
+  expect(screen.getAllByTestId('material-use').map(r => r.textContent)).toEqual(['Glow Orb×2'])
+  fireEvent.click(screen.getByRole('button', { name: 'Show uses of Diabolic Orb' }))
+  expect(screen.getAllByTestId('material-use').map(r => r.textContent)).toEqual([
+    'Glow Orb×2',
+    'Hell Diamond→ Glow Orb×2',
+    'Pre-fusion 1→ Celestial Blade×4',
+  ])
 })
