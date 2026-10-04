@@ -87,19 +87,25 @@ test('real dataset: Hyperion plan', () => {
   expect(r).toMatchSnapshot()
 })
 
-test('each goal lists its parts: owned items it uses and base items it still needs', () => {
+test('each goal lists its recipe inputs in recipe order with owned and needed counts', () => {
   const r = run(['glow-orb'], { 'hell-diamond': 1, ruby: 1 })
   expect(r.goals[0].parts).toEqual([
-    { itemId: 'diamond', need: 1, own: 0 },
-    { itemId: 'hell-diamond', need: 1, own: 1 },
-    { itemId: 'ruby', need: 1, own: 1 },
+    { itemId: 'hell-diamond', need: 1, own: 1, parts: [] },
+    { itemId: 'diamond', need: 1, own: 0, parts: [] },
+    { itemId: 'ruby', need: 1, own: 1, parts: [] },
   ])
 })
 
-test('goal parts expand missing intermediates down to base items', () => {
+test('a missing intermediate part lists its own inputs', () => {
   const r = run(['blade'], { 'diabolic-orb': 1 })
   expect(r.goals[0].parts).toEqual([
-    { itemId: 'diabolic-orb', need: 3, own: 1 },
-    { itemId: 'ruby', need: 1, own: 0 },
+    {
+      itemId: 'hell-diamond', need: 1, own: 0,
+      parts: [
+        { itemId: 'ruby', need: 1, own: 0, parts: [] },
+        { itemId: 'diabolic-orb', need: 2, own: 1, parts: [] },
+      ],
+    },
+    { itemId: 'diabolic-orb', need: 1, own: 0, parts: [] },
   ])
 })

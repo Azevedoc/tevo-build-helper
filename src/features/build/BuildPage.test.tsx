@@ -48,6 +48,17 @@ test('a goal dropdown lists its materials with owned and needed counts', async (
   expect(parts).toContain('Diabolic Orb0/1')
 })
 
+test('an intermediate in the dropdown expands to show what it is made from', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['starlight-crystal'])
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Starlight Crystal' }))
+  expect(screen.getByText('Draconic Trinity')).toBeInTheDocument()
+  expect(screen.queryByText('Dragon Egg')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Draconic Trinity' }))
+  expect(screen.getByText('Dragon Egg')).toBeInTheDocument()
+})
+
 test('an obtained goal has no materials dropdown', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['glow-orb'])

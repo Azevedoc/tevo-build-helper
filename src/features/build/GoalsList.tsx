@@ -67,6 +67,11 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
         </span>
         {item ? (
           <>
+            {parts.length > 0 ? (
+              <ExpandButton open={open} name={item.name} onToggle={() => setOpen(!open)} />
+            ) : (
+              <span className="w-4" />
+            )}
             <ItemIcon item={item} />
             <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
             {obtained ? (
@@ -83,18 +88,6 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
                 <span className="w-10 text-right text-xs tabular-nums text-neutral-300">{pct}%</span>
               </>
             )}
-            {parts.length > 0 ? (
-              <button
-                aria-label={`${open ? 'Hide' : 'Show'} materials for ${item.name}`}
-                aria-expanded={open}
-                className="w-5 text-neutral-500 hover:text-neutral-200"
-                onClick={() => setOpen(!open)}
-              >
-                {open ? '▾' : '▸'}
-              </button>
-            ) : (
-              <span className="w-5" />
-            )}
           </>
         ) : (
           <span className="flex-1 text-sm text-red-400">Removed item</span>
@@ -107,27 +100,60 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
           ×
         </button>
       </div>
-      {open && parts.length > 0 && <GoalParts parts={parts} />}
+      {open && parts.length > 0 && (
+        <div className="mt-2 border-t border-neutral-800 pt-2 pl-6">
+          <GoalParts parts={parts} />
+        </div>
+      )}
     </li>
   )
 }
 
+function ExpandButton({ open, name, onToggle }: { open: boolean; name: string; onToggle: () => void }) {
+  return (
+    <button
+      aria-label={`${open ? 'Hide' : 'Show'} materials for ${name}`}
+      aria-expanded={open}
+      className="w-4 shrink-0 text-neutral-500 hover:text-neutral-200"
+      onClick={onToggle}
+    >
+      {open ? '▾' : '▸'}
+    </button>
+  )
+}
+
+/** A goal's recipe inputs; an input still to be crafted expands to show its own inputs. */
 function GoalParts({ parts }: { parts: GoalPart[] }) {
   return (
-    <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-7">
-      {parts.map(({ itemId, need, own }) => {
-        const it = dataset.items.get(itemId)
-        return (
-          <li key={itemId} data-testid="goal-part" className="flex items-center gap-2 text-sm">
-            {it && <ItemIcon item={it} size={20} />}
-            <span className="min-w-0 flex-1 truncate">{it?.name ?? itemId}</span>
-            <span className={`text-xs tabular-nums ${own >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
-              {own}/{need}
-            </span>
-          </li>
-        )
-      })}
+    <ul className="space-y-0.5">
+      {parts.map(part => (
+        <PartRow key={part.itemId} part={part} />
+      ))}
     </ul>
+  )
+}
+
+function PartRow({ part }: { part: GoalPart }) {
+  const [open, setOpen] = useState(false)
+  const { itemId, need, own, parts } = part
+  const it = dataset.items.get(itemId)
+  const name = it?.name ?? itemId
+  return (
+    <li>
+      <div data-testid="goal-part" className="flex items-center gap-2 text-sm">
+        {parts.length > 0 ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
+        {it && <ItemIcon item={it} size={20} />}
+        <span className="min-w-0 flex-1 truncate">{name}</span>
+        <span className={`text-xs tabular-nums ${own >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
+          {own}/{need}
+        </span>
+      </div>
+      {open && (
+        <div className="ml-2 mt-0.5 border-l border-neutral-800 pl-3">
+          <GoalParts parts={parts} />
+        </div>
+      )}
+    </li>
   )
 }
 

@@ -15,7 +15,7 @@ export interface GoalResult {
   progress: number
   coveredUnits: number
   totalUnits: number
-  /** The goal's materials, simplified: owned items it uses and base items it still needs, sorted by name. */
+  /** The goal's recipe inputs, in recipe order. */
   parts: GoalPart[]
 }
 
@@ -23,6 +23,8 @@ export interface GoalPart {
   itemId: string
   need: number
   own: number
+  /** Inputs for the copies not owned; empty for base items and fully owned parts. */
+  parts: GoalPart[]
 }
 
 export interface BreakdownEntry {
@@ -72,7 +74,6 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
     return units
   }
 
-  const nameOf = (id: string) => items.get(id)?.name ?? id
   const goalResults: GoalResult[] = []
   const unknownGoals: string[] = []
 
@@ -82,19 +83,16 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
       continue
     }
     let covered = 0
-    const parts = new Map<string, GoalPart>()
-    const addPart = (id: string, owned: boolean) => {
-      let part = parts.get(id)
-      if (!part) {
-        part = { itemId: id, need: 0, own: 0 }
-        parts.set(id, part)
-      }
-      part.need++
-      if (owned) part.own++
-    }
+    const root: GoalPart = { itemId: goalId, need: 0, own: 0, parts: [] }
 
     // Returns true when the item was taken from the pool.
-    const need = (id: string, parentId: string | null): boolean => {
+    const need = (id: string, parentId: string | null, parentPart: GoalPart | null): boolean => {
+      let part = root
+      if (parentPart) {
+        part = parentPart.parts.find(p => p.itemId === id) ?? { itemId: id, need: 0, own: 0, parts: [] }
+        if (!parentPart.parts.includes(part)) parentPart.parts.push(part)
+      }
+      part.need++
       const recipe = items.get(id)?.recipe ?? []
       let row = rows.get(id)
       if (!row) {
@@ -111,16 +109,15 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
         pool.set(id, available - 1)
         row.own++
         covered += leafUnits(id)
-        if (parentId !== null) addPart(id, true)
+        part.own++
         return true
       }
       row.missing++
-      if (recipe.length === 0 && parentId !== null) addPart(id, false)
-      for (const input of recipe) for (let i = 0; i < input.qty; i++) need(input.item, id)
+      for (const input of recipe) for (let i = 0; i < input.qty; i++) need(input.item, id, part)
       return false
     }
 
-    const ownedGoal = need(goalId, null)
+    const ownedGoal = need(goalId, null, null)
     const total = leafUnits(goalId)
     goalResults.push({
       goalId,
@@ -128,10 +125,11 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
       progress: covered / total,
       coveredUnits: covered,
       totalUnits: total,
-      parts: [...parts.values()].sort((a, b) => compare(nameOf(a.itemId), nameOf(b.itemId))),
+      parts: root.parts,
     })
   }
 
+  const nameOf = (id: string) => items.get(id)?.name ?? id
   const materials = [...rows.values()].sort((a, b) => b.missing - a.missing || compare(nameOf(a.itemId), nameOf(b.itemId)))
 
   const groups = new Map<string, SourceGroup>()
