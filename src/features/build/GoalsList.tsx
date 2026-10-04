@@ -5,17 +5,15 @@ import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import { dataset } from '../../data/dataset'
 import type { Source } from '../../data/types'
-import type { GoalResult } from '../../engine/plan'
-import { RecipeChildren } from './RecipeNode'
+import type { GoalPart, GoalResult } from '../../engine/plan'
 
 interface Props {
   goals: string[]
   results: (GoalResult | null)[] // aligned with goals; null = removed item
-  owned: Map<string, number>
   onChange: (goals: string[]) => void
 }
 
-export function GoalsList({ goals, results, owned, onChange }: Props) {
+export function GoalsList({ goals, results, onChange }: Props) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
   // Goals are unique, so the item id is a stable key.
   const keys = goals
@@ -37,7 +35,6 @@ export function GoalsList({ goals, results, owned, onChange }: Props) {
               sortId={keys[i]}
               goalId={goalId}
               result={results[i]}
-              owned={owned}
               onRemove={() => onChange(goals.filter((_, j) => j !== i))}
             />
           ))}
@@ -47,13 +44,15 @@ export function GoalsList({ goals, results, owned, onChange }: Props) {
   )
 }
 
-function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | null; owned: Map<string, number>; onRemove: () => void }) {
-  const { sortId, goalId, result, owned, onRemove } = props
+function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | null; onRemove: () => void }) {
+  const { sortId, goalId, result, onRemove } = props
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: sortId })
   const [open, setOpen] = useState(false)
   const item = dataset.items.get(goalId)
   const pct = result ? Math.round(result.progress * 100) : 0
   const dropsFrom = item && !item.recipe ? describeSources(item.sources) : null
+  const obtained = result?.status === 'done'
+  const parts = !obtained && item?.recipe ? (result?.parts ?? []) : []
 
   return (
     <li
@@ -69,23 +68,32 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
         {item ? (
           <>
             <ItemIcon item={item} />
-            <button className="min-w-0 flex-1 truncate text-left text-sm hover:underline" onClick={() => setOpen(!open)}>
-              {item.name}
-            </button>
-            {dropsFrom !== null ? (
-              <span
-                title={dropsFrom}
-                className={`max-w-[45%] truncate text-xs ${result?.status === 'done' ? 'text-emerald-400' : 'text-neutral-400'}`}
-              >
+            <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
+            {obtained ? (
+              <span className="text-xs font-medium text-emerald-400">Obtained</span>
+            ) : dropsFrom !== null ? (
+              <span title={dropsFrom} className="max-w-[45%] truncate text-xs text-neutral-400">
                 {dropsFrom}
               </span>
             ) : (
               <>
                 <div className="h-2 w-24 overflow-hidden rounded bg-neutral-800">
-                  <div className={`h-full ${result?.status === 'done' ? 'bg-emerald-500' : 'bg-sky-500'}`} style={{ width: `${pct}%` }} />
+                  <div className={`h-full ${pct === 100 ? 'bg-emerald-500' : 'bg-sky-500'}`} style={{ width: `${pct}%` }} />
                 </div>
                 <span className="w-10 text-right text-xs tabular-nums text-neutral-300">{pct}%</span>
               </>
+            )}
+            {parts.length > 0 ? (
+              <button
+                aria-label={`${open ? 'Hide' : 'Show'} materials for ${item.name}`}
+                aria-expanded={open}
+                className="w-5 text-neutral-500 hover:text-neutral-200"
+                onClick={() => setOpen(!open)}
+              >
+                {open ? '▾' : '▸'}
+              </button>
+            ) : (
+              <span className="w-5" />
             )}
           </>
         ) : (
@@ -99,8 +107,27 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
           ×
         </button>
       </div>
-      {open && item?.recipe && <RecipeChildren itemId={goalId} owned={owned} />}
+      {open && parts.length > 0 && <GoalParts parts={parts} />}
     </li>
+  )
+}
+
+function GoalParts({ parts }: { parts: GoalPart[] }) {
+  return (
+    <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-7">
+      {parts.map(({ itemId, need, own }) => {
+        const it = dataset.items.get(itemId)
+        return (
+          <li key={itemId} data-testid="goal-part" className="flex items-center gap-2 text-sm">
+            {it && <ItemIcon item={it} size={20} />}
+            <span className="min-w-0 flex-1 truncate">{it?.name ?? itemId}</span>
+            <span className={`text-xs tabular-nums ${own >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
+              {own}/{need}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

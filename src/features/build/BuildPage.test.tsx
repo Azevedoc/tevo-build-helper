@@ -16,7 +16,7 @@ test('offers to create a build when there is none', () => {
   expect(screen.getByRole('button', { name: 'Create build' })).toBeInTheDocument()
 })
 
-test('creating a build and adding a goal shows its progress', async () => {
+test('adding a goal the character already owns shows it as obtained', async () => {
   vi.spyOn(window, 'prompt').mockReturnValue('Tank')
   render(<BuildPage characterId="local/Paladin" />)
   fireEvent.click(screen.getByRole('button', { name: 'Create build' }))
@@ -24,7 +24,8 @@ test('creating a build and adding a goal shows its progress', async () => {
   fireEvent.click(await screen.findByRole('button', { name: /Glow Orb/ }))
   const row = await screen.findByTestId('goal-row')
   expect(row).toHaveTextContent('Glow Orb')
-  expect(row).toHaveTextContent('100%') // the fixture character owns a Glow Orb
+  expect(row).toHaveTextContent('Obtained') // the fixture character owns a Glow Orb
+  expect(row).not.toHaveTextContent('%')
 })
 
 test('goals missing from the dataset show as removed and can be removed', async () => {
@@ -36,13 +37,22 @@ test('goals missing from the dataset show as removed and can be removed', async 
   expect(await screen.findByText('Add a goal to get started.')).toBeInTheDocument()
 })
 
-test('clicking a goal expands its recipe one level', async () => {
+test('a goal dropdown lists its materials with owned and needed counts', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['hell-diamond'])
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.queryByTestId('goal-part')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Hell Diamond' }))
+  const parts = screen.getAllByTestId('goal-part').map(p => p.textContent)
+  expect(parts).toContain('Ruby1/1') // the fixture character owns Rubies
+  expect(parts).toContain('Diabolic Orb0/1')
+})
+
+test('an obtained goal has no materials dropdown', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['glow-orb'])
   render(<BuildPage characterId="local/Paladin" />)
-  fireEvent.click(screen.getByRole('button', { name: 'Glow Orb' }))
-  expect(await screen.findByText('Hell Diamond')).toBeInTheDocument()
-  expect(screen.queryByText('Diabolic Orb')).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Show materials for Glow Orb' })).not.toBeInTheDocument()
 })
 
 test('unknown character shows a not-found message', () => {

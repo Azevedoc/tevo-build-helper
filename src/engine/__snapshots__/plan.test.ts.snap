@@ -45,6 +45,28 @@ exports[`real dataset: Hyperion plan 1`] = `
     {
       "coveredUnits": 0,
       "goalId": "hyperion",
+      "parts": [
+        {
+          "itemId": "blessing-of-darkness",
+          "need": 1,
+          "own": 0,
+        },
+        {
+          "itemId": "diamond",
+          "need": 1,
+          "own": 0,
+        },
+        {
+          "itemId": "golden-fragment",
+          "need": 1,
+          "own": 0,
+        },
+        {
+          "itemId": "mythical-armor-piece",
+          "need": 1,
+          "own": 0,
+        },
+      ],
       "progress": 0,
       "status": "not-started",
       "totalUnits": 4,

@@ -86,3 +86,20 @@ test('real dataset: Hyperion plan', () => {
   expect(r.goals[0].totalUnits).toBeGreaterThan(0)
   expect(r).toMatchSnapshot()
 })
+
+test('each goal lists its parts: owned items it uses and base items it still needs', () => {
+  const r = run(['glow-orb'], { 'hell-diamond': 1, ruby: 1 })
+  expect(r.goals[0].parts).toEqual([
+    { itemId: 'diamond', need: 1, own: 0 },
+    { itemId: 'hell-diamond', need: 1, own: 1 },
+    { itemId: 'ruby', need: 1, own: 1 },
+  ])
+})
+
+test('goal parts expand missing intermediates down to base items', () => {
+  const r = run(['blade'], { 'diabolic-orb': 1 })
+  expect(r.goals[0].parts).toEqual([
+    { itemId: 'diabolic-orb', need: 3, own: 1 },
+    { itemId: 'ruby', need: 1, own: 0 },
+  ])
+})

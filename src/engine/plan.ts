@@ -15,6 +15,14 @@ export interface GoalResult {
   progress: number
   coveredUnits: number
   totalUnits: number
+  /** The goal's materials, simplified: owned items it uses and base items it still needs, sorted by name. */
+  parts: GoalPart[]
+}
+
+export interface GoalPart {
+  itemId: string
+  need: number
+  own: number
 }
 
 export interface BreakdownEntry {
@@ -64,6 +72,7 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
     return units
   }
 
+  const nameOf = (id: string) => items.get(id)?.name ?? id
   const goalResults: GoalResult[] = []
   const unknownGoals: string[] = []
 
@@ -73,6 +82,16 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
       continue
     }
     let covered = 0
+    const parts = new Map<string, GoalPart>()
+    const addPart = (id: string, owned: boolean) => {
+      let part = parts.get(id)
+      if (!part) {
+        part = { itemId: id, need: 0, own: 0 }
+        parts.set(id, part)
+      }
+      part.need++
+      if (owned) part.own++
+    }
 
     // Returns true when the item was taken from the pool.
     const need = (id: string, parentId: string | null): boolean => {
@@ -92,9 +111,11 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
         pool.set(id, available - 1)
         row.own++
         covered += leafUnits(id)
+        if (parentId !== null) addPart(id, true)
         return true
       }
       row.missing++
+      if (recipe.length === 0 && parentId !== null) addPart(id, false)
       for (const input of recipe) for (let i = 0; i < input.qty; i++) need(input.item, id)
       return false
     }
@@ -107,10 +128,10 @@ export function planBuild({ items, owned, goals }: PlanInput): PlanResult {
       progress: covered / total,
       coveredUnits: covered,
       totalUnits: total,
+      parts: [...parts.values()].sort((a, b) => compare(nameOf(a.itemId), nameOf(b.itemId))),
     })
   }
 
-  const nameOf = (id: string) => items.get(id)?.name ?? id
   const materials = [...rows.values()].sort((a, b) => b.missing - a.missing || compare(nameOf(a.itemId), nameOf(b.itemId)))
 
   const groups = new Map<string, SourceGroup>()

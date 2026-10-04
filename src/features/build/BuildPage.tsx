@@ -56,7 +56,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
                 if (!goals.includes(id)) void setGoals(active.id, [...goals, id])
               }}
             />
-            <GoalsList goals={goals} results={results} owned={owned} onChange={goals => void setGoals(active.id, goals)} />
+            <GoalsList goals={goals} results={results} onChange={goals => void setGoals(active.id, goals)} />
           </section>
           <section className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Materials</h3>
