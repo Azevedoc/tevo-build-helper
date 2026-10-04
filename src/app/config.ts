@@ -1,0 +1,2 @@
+export const REPO_URL = 'https://github.com/Azevedoc/tevo-build-helper'
+export const EVOHELPER_URL = 'https://codeberg.org/ArgentumHeart/EvoHelper'

@@ -3,6 +3,7 @@ import { Layout } from './app/Layout'
 import { useRoute } from './app/route'
 import { BuildPage } from './features/build/BuildPage'
 import { CharactersPage } from './features/characters/CharactersPage'
+import { DataPage } from './features/data/DataPage'
 import { useAppStore } from './state/app-store'
 
 export default function App() {
@@ -18,7 +19,9 @@ export default function App() {
         <BuildPage characterId={route.id} />
       ) : route.page === 'characters' ? (
         <CharactersPage />
-      ) : null}
+      ) : (
+        <DataPage />
+      )}
     </Layout>
   )
 }
