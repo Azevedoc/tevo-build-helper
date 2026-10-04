@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import { dataset } from '../../data/dataset'
+import type { Source } from '../../data/types'
 import type { GoalResult } from '../../engine/plan'
 import { RecipeChildren } from './RecipeNode'
 
@@ -16,7 +17,8 @@ interface Props {
 
 export function GoalsList({ goals, results, owned, onChange }: Props) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-  const keys = goals.map((g, i) => `${i}:${g}`)
+  // Goals are unique, so the item id is a stable key.
+  const keys = goals
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return
@@ -51,6 +53,7 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
   const [open, setOpen] = useState(false)
   const item = dataset.items.get(goalId)
   const pct = result ? Math.round(result.progress * 100) : 0
+  const dropsFrom = item && !item.recipe ? describeSources(item.sources) : null
 
   return (
     <li
@@ -69,10 +72,21 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
             <button className="min-w-0 flex-1 truncate text-left text-sm hover:underline" onClick={() => setOpen(!open)}>
               {item.name}
             </button>
-            <div className="h-2 w-24 overflow-hidden rounded bg-neutral-800">
-              <div className={`h-full ${result?.status === 'done' ? 'bg-emerald-500' : 'bg-sky-500'}`} style={{ width: `${pct}%` }} />
-            </div>
-            <span className="w-10 text-right text-xs tabular-nums text-neutral-300">{pct}%</span>
+            {dropsFrom !== null ? (
+              <span
+                title={dropsFrom}
+                className={`max-w-[45%] truncate text-xs ${result?.status === 'done' ? 'text-emerald-400' : 'text-neutral-400'}`}
+              >
+                {dropsFrom}
+              </span>
+            ) : (
+              <>
+                <div className="h-2 w-24 overflow-hidden rounded bg-neutral-800">
+                  <div className={`h-full ${result?.status === 'done' ? 'bg-emerald-500' : 'bg-sky-500'}`} style={{ width: `${pct}%` }} />
+                </div>
+                <span className="w-10 text-right text-xs tabular-nums text-neutral-300">{pct}%</span>
+              </>
+            )}
           </>
         ) : (
           <span className="flex-1 text-sm text-red-400">Removed item</span>
@@ -85,7 +99,12 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
           ×
         </button>
       </div>
-      {open && item && <RecipeChildren itemId={goalId} owned={owned} />}
+      {open && item?.recipe && <RecipeChildren itemId={goalId} owned={owned} />}
     </li>
   )
+}
+
+function describeSources(sources: Source[]): string {
+  if (sources.length === 0) return 'No known source'
+  return 'Drops from ' + sources.map(s => (s.tier ? `${s.where} (${s.tier})` : s.where)).join(', ')
 }

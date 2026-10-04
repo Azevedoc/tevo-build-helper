@@ -18,10 +18,12 @@ export function BuildPage({ characterId }: { characterId: string }) {
     [allBuilds, characterId],
   )
   const active = builds.find(b => b.active)
+  // The game allows only one of each item, so a goal appears once; this also collapses duplicates saved earlier.
+  const goals = useMemo(() => [...new Set(active?.goals ?? [])], [active])
   const owned = useMemo(() => (character ? effectiveOwned(character) : new Map<string, number>()), [character])
   const plan = useMemo(
-    () => (active ? planBuild({ items: dataset.items, owned, goals: active.goals }) : null),
-    [active, owned],
+    () => (active ? planBuild({ items: dataset.items, owned, goals }) : null),
+    [active, goals, owned],
   )
 
   if (!character) return <p className="text-sm text-neutral-400">Character not found.</p>
@@ -30,7 +32,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
   const results: (GoalResult | null)[] = []
   if (active && plan) {
     let next = 0
-    for (const g of active.goals) results.push(dataset.items.has(g) ? plan.goals[next++] : null)
+    for (const g of goals) results.push(dataset.items.has(g) ? plan.goals[next++] : null)
   }
 
   return (
@@ -49,8 +51,13 @@ export function BuildPage({ characterId }: { characterId: string }) {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <section className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Goals</h3>
-            <GoalSearch onAdd={id => void setGoals(active.id, [...active.goals, id])} />
-            <GoalsList goals={active.goals} results={results} owned={owned} onChange={goals => void setGoals(active.id, goals)} />
+            <GoalSearch
+              added={goals}
+              onAdd={id => {
+                if (!goals.includes(id)) void setGoals(active.id, [...goals, id])
+              }}
+            />
+            <GoalsList goals={goals} results={results} owned={owned} onChange={goals => void setGoals(active.id, goals)} />
           </section>
           <section className="space-y-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Materials</h3>

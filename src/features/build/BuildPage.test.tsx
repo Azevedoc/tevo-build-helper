@@ -62,3 +62,30 @@ test('materials panel empty state', async () => {
   render(<BuildPage characterId="local/Paladin" />)
   expect(screen.getByText('Add a goal to see materials.')).toBeInTheDocument()
 })
+
+test('an item already in the build cannot be added again', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['glow-orb'])
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.change(screen.getByPlaceholderText('Add goal…'), { target: { value: 'Glow Or' } })
+  const option = await screen.findByRole('button', { name: /Glow Orb.*in build/ })
+  expect(option).toBeDisabled()
+  fireEvent.click(option)
+  expect(screen.getAllByTestId('goal-row')).toHaveLength(1)
+})
+
+test('duplicate goals saved earlier are shown once', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['glow-orb', 'hell-diamond', 'glow-orb'])
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.getAllByTestId('goal-row')).toHaveLength(2)
+})
+
+test('a drop-only goal shows where it drops instead of a progress bar', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['blazes-touch'])
+  render(<BuildPage characterId="local/Paladin" />)
+  const row = screen.getByTestId('goal-row')
+  expect(row).toHaveTextContent('Drops from Dragon Fortress (Imp 2)')
+  expect(row).not.toHaveTextContent('%')
+})
