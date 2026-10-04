@@ -11,6 +11,9 @@ const PRELOAD = /call Preload\(\s*"(.*)"\s*\)/
 const SLOT = /^(?:Item|Stash[2-6]? Item) [1-6]:(.*)$/
 const HERO = /^Hero:(.*)$/
 
+/** Removes Warcraft III color codes (`|cffRRGGBB…|r`, either case) that wrap item names in real saves. */
+const stripColorCodes = (s: string) => s.replace(/\|c[0-9a-f]{8}/gi, '').replace(/\|r/gi, '')
+
 export function parseSave(text: string, fileName?: string): ParsedSave {
   let hero: string | null = null
   const slotNames: string[] = []
@@ -23,7 +26,8 @@ export function parseSave(text: string, fileName?: string): ParsedSave {
       hero = heroMatch[1].trim()
       continue
     }
-    const name = SLOT.exec(payload)?.[1].trim()
+    const slot = SLOT.exec(payload)?.[1]
+    const name = slot === undefined ? undefined : stripColorCodes(slot).trim()
     if (name) slotNames.push(name)
   }
 
