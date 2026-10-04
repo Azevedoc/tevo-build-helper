@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import type { Item } from '../../data/types'
 import { UNKNOWN_SOURCE, type PlanResult } from '../../engine/plan'
 import { MaterialsPanel } from './MaterialsPanel'
@@ -39,41 +39,18 @@ const renderPanel = (onAdjust = vi.fn()) => {
   return onAdjust
 }
 
-beforeEach(() => localStorage.clear())
-
-test('by material shows totals, tier and breakdown', () => {
+test('groups missing materials by source, unknown last', () => {
   renderPanel()
-  const row = screen.getByTestId('material-diabolic-orb')
-  // 'have' is the real owned count (3), even when the plan only uses 1 of them
-  expect(row).toHaveTextContent('need 6 · have 3 · missing 5')
-  expect(row).toHaveTextContent('H1')
-  expect(row).toHaveTextContent('2 × via Hell Diamond (for Glow Orb)')
-  expect(row).toHaveTextContent('4 × via Pre-fusion 1 (for Celestial Blade)')
-})
-
-test('goal breakdown entries render as goal', () => {
-  renderPanel()
-  expect(screen.getByTestId('material-glow-orb')).toHaveTextContent('1 × goal (Glow Orb)')
-})
-
-test('complete rows show a check mark', () => {
-  renderPanel()
-  expect(screen.getByTestId('material-ruby')).toHaveTextContent('✓')
-})
-
-test('+ and − adjust owned counts', () => {
-  const onAdjust = renderPanel()
-  const row = screen.getByTestId('material-diabolic-orb')
-  fireEvent.click(within(row).getByRole('button', { name: 'Own one more Diabolic Orb' }))
-  fireEvent.click(within(row).getByRole('button', { name: 'Own one less Diabolic Orb' }))
-  expect(onAdjust.mock.calls).toEqual([['diabolic-orb', 1], ['diabolic-orb', -1]])
-})
-
-test('by source groups missing materials, unknown last', () => {
-  renderPanel()
-  fireEvent.click(screen.getByRole('tab', { name: 'By source' }))
+  expect(screen.queryByRole('tab')).not.toBeInTheDocument()
   const groups = screen.getAllByTestId('source-group')
   expect(groups[0]).toHaveTextContent('Agahnim · H2')
   expect(groups[0]).toHaveTextContent('Ruby ×2')
   expect(groups[1]).toHaveTextContent(UNKNOWN_SOURCE)
+})
+
+test('+ and − adjust owned counts', () => {
+  const onAdjust = renderPanel()
+  fireEvent.click(screen.getByRole('button', { name: 'Own one more Ruby' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Own one less Diamond' }))
+  expect(onAdjust.mock.calls).toEqual([['ruby', 1]])
 })

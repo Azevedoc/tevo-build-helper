@@ -1,8 +1,8 @@
 # TEvo Build Helper
 
 A browser-based item build planner for the Warcraft III custom map **Twilight's Eve Evo**. Import your
-character's save file, pick goal items, and see your progress and the total materials you still need, with a
-breakdown of why each one is needed and where it drops.
+character's save file, pick goal items, and see your progress and what you still need to farm, grouped by
+where it drops.
 
 ## Development
 

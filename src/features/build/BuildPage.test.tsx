@@ -50,11 +50,11 @@ test('unknown character shows a not-found message', () => {
   expect(screen.getByText('Character not found.')).toBeInTheDocument()
 })
 
-test('materials panel shows totals for the active build', async () => {
+test('materials panel lists what is left to farm for the active build', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
-  await store().setGoals(build.id, ['hell-diamond'])
+  await store().setGoals(build.id, ['blazes-touch'])
   render(<BuildPage characterId="local/Paladin" />)
-  expect(screen.getByTestId('material-hell-diamond')).toHaveTextContent('need 1')
+  expect(screen.getByTestId('source-group')).toHaveTextContent("Blaze's Touch ×1")
 })
 
 test('materials panel empty state', async () => {
