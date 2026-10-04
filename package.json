@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
+    "validate-data": "tsx scripts/validate-data.ts",
     "test": "vitest run",
     "preview": "vite preview"
   },
