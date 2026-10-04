@@ -6,6 +6,7 @@ import { ItemIcon } from '../../components/ItemIcon'
 import { dataset } from '../../data/dataset'
 import type { Source } from '../../data/types'
 import type { GoalPart, GoalResult } from '../../engine/plan'
+import { ExpandButton } from './ExpandButton'
 
 interface Props {
   goals: string[]
@@ -106,19 +107,6 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
         </div>
       )}
     </li>
-  )
-}
-
-function ExpandButton({ open, name, onToggle }: { open: boolean; name: string; onToggle: () => void }) {
-  return (
-    <button
-      aria-label={`${open ? 'Hide' : 'Show'} materials for ${name}`}
-      aria-expanded={open}
-      className="w-4 shrink-0 text-neutral-500 hover:text-neutral-200"
-      onClick={onToggle}
-    >
-      {open ? '▾' : '▸'}
-    </button>
   )
 }
 

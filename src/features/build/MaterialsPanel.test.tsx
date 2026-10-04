@@ -3,11 +3,11 @@ import type { Item } from '../../data/types'
 import { UNKNOWN_SOURCE, type PlanResult } from '../../engine/plan'
 import { MaterialsPanel } from './MaterialsPanel'
 
-const item = (id: string, name: string, sources: Item['sources'] = []): Item => ({ id, name, rarity: 'common', sources })
+const item = (id: string, name: string, sources: Item['sources'] = [], recipe?: Item['recipe']): Item => ({ id, name, rarity: 'common', sources, recipe })
 const items = new Map<string, Item>([
   ['diabolic-orb', item('diabolic-orb', 'Diabolic Orb', [{ where: 'Demon of Fire', tier: 'H1' }])],
-  ['hell-diamond', item('hell-diamond', 'Hell Diamond')],
-  ['pre-fusion-1', item('pre-fusion-1', 'Pre-fusion 1')],
+  ['hell-diamond', item('hell-diamond', 'Hell Diamond', [], [{ item: 'ruby', qty: 1 }, { item: 'pre-fusion-1', qty: 1 }])],
+  ['pre-fusion-1', item('pre-fusion-1', 'Pre-fusion 1', [], [{ item: 'diabolic-orb', qty: 2 }])],
   ['glow-orb', item('glow-orb', 'Glow Orb')],
   ['celestial-blade', item('celestial-blade', 'Celestial Blade')],
   ['ruby', item('ruby', 'Ruby', [{ where: 'Agahnim', tier: 'H2' }])],
@@ -26,6 +26,7 @@ const plan: PlanResult = {
       ],
     },
     { itemId: 'glow-orb', isBase: false, need: 1, own: 0, missing: 1, breakdown: [{ parentId: null, goalId: 'glow-orb', count: 1 }] },
+    { itemId: 'hell-diamond', isBase: false, need: 1, own: 1, missing: 0, breakdown: [{ parentId: 'glow-orb', goalId: 'glow-orb', count: 1 }] },
     { itemId: 'ruby', isBase: true, need: 2, own: 2, missing: 0, breakdown: [{ parentId: 'glow-orb', goalId: 'glow-orb', count: 2 }] },
   ],
   bySource: [
@@ -34,7 +35,7 @@ const plan: PlanResult = {
   ],
 }
 
-const renderPanel = (owned = new Map([['diabolic-orb', 3], ['ruby', 2]])) => render(<MaterialsPanel plan={plan} items={items} owned={owned} />)
+const renderPanel = (owned = new Map([['diabolic-orb', 3], ['ruby', 4], ['hell-diamond', 1]])) => render(<MaterialsPanel plan={plan} items={items} owned={owned} />)
 
 test('groups missing materials by source, unknown last', () => {
   renderPanel()
@@ -45,11 +46,13 @@ test('groups missing materials by source, unknown last', () => {
   expect(groups[1]).toHaveTextContent(UNKNOWN_SOURCE)
 })
 
-test('owned tab lists owned items used by the goals, with the surplus owned', () => {
+test('owned tab shows owned out of needed for each item the goals use, green when enough', () => {
   renderPanel()
   fireEvent.click(screen.getByRole('tab', { name: 'Owned' }))
   const rows = screen.getAllByTestId('owned-row')
-  expect(rows.map(r => r.textContent)).toEqual(['Diabolic Orb ×1of 3 owned', 'Ruby ×2'])
+  expect(rows.map(r => r.textContent)).toEqual(['Diabolic Orb3/6', '▸Hell Diamond1/1', 'Ruby4/2'])
+  expect(screen.getByText('3/6')).not.toHaveClass('text-emerald-400')
+  expect(screen.getByText('4/2')).toHaveClass('text-emerald-400')
   expect(screen.queryByTestId('source-group')).not.toBeInTheDocument()
 })
 
@@ -58,4 +61,14 @@ test('owned tab says when nothing owned is used', () => {
   render(<MaterialsPanel plan={nothingOwned} items={items} owned={new Map()} />)
   fireEvent.click(screen.getByRole('tab', { name: 'Owned' }))
   expect(screen.getByText('Nothing you own is used by these goals yet.')).toBeInTheDocument()
+})
+
+test('a crafted item in the owned tab expands to show its recipe, nested', () => {
+  renderPanel()
+  fireEvent.click(screen.getByRole('tab', { name: 'Owned' }))
+  expect(screen.queryByRole('button', { name: 'Show materials for Ruby' })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Hell Diamond' }))
+  expect(screen.getAllByTestId('recipe-part').map(r => r.textContent)).toEqual(['Ruby×1', '▸Pre-fusion 1×1'])
+  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Pre-fusion 1' }))
+  expect(screen.getAllByTestId('recipe-part').map(r => r.textContent)).toContain('Diabolic Orb×2')
 })

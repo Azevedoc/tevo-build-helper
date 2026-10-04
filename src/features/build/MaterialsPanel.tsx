@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import type { Item } from '../../data/types'
 import type { PlanResult } from '../../engine/plan'
+import { ExpandButton } from './ExpandButton'
 
 interface Props {
   plan: PlanResult
@@ -62,7 +63,7 @@ function ToFarm({ plan, items }: Omit<Props, 'owned'>) {
   )
 }
 
-/** Owned items the goals consume: how many are used, and how many are owned when that is more. */
+/** Owned items the goals consume, as owned out of needed; a crafted item expands to show its recipe. */
 function OwnedView({ plan, items, owned }: Props) {
   const name = (id: string) => items.get(id)?.name ?? id
   const used = plan.materials
@@ -72,19 +73,56 @@ function OwnedView({ plan, items, owned }: Props) {
 
   return (
     <ul className="space-y-0.5">
-      {used.map(({ itemId, own }) => {
-        const it = items.get(itemId)
-        const total = owned.get(itemId) ?? own
-        return (
-          <li key={itemId} data-testid="owned-row" className="flex items-center gap-2 text-sm">
-            {it && <ItemIcon item={it} size={20} />}
-            <span className="min-w-0 truncate">
-              {name(itemId)} ×{own}
-            </span>
-            {total > own && <span className="ml-auto shrink-0 text-xs text-neutral-500">of {total} owned</span>}
-          </li>
-        )
-      })}
+      {used.map(({ itemId, own, need }) => (
+        <OwnedRow key={itemId} itemId={itemId} have={owned.get(itemId) ?? own} need={need} items={items} />
+      ))}
     </ul>
+  )
+}
+
+function OwnedRow({ itemId, have, need, items }: { itemId: string; have: number; need: number; items: Map<string, Item> }) {
+  const [open, setOpen] = useState(false)
+  const it = items.get(itemId)
+  const name = it?.name ?? itemId
+  return (
+    <li>
+      <div data-testid="owned-row" className="flex items-center gap-2 text-sm">
+        {it?.recipe ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
+        {it && <ItemIcon item={it} size={20} />}
+        <span className="min-w-0 flex-1 truncate">{name}</span>
+        <span className={`text-xs tabular-nums ${have >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
+          {have}/{need}
+        </span>
+      </div>
+      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
+    </li>
+  )
+}
+
+/** An item's recipe; a crafted input expands to show its own recipe. */
+function RecipeParts({ recipe, items }: { recipe: NonNullable<Item['recipe']>; items: Map<string, Item> }) {
+  return (
+    <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-neutral-800 pl-3">
+      {recipe.map(({ item, qty }) => (
+        <RecipePart key={item} itemId={item} qty={qty} items={items} />
+      ))}
+    </ul>
+  )
+}
+
+function RecipePart({ itemId, qty, items }: { itemId: string; qty: number; items: Map<string, Item> }) {
+  const [open, setOpen] = useState(false)
+  const it = items.get(itemId)
+  const name = it?.name ?? itemId
+  return (
+    <li>
+      <div data-testid="recipe-part" className="flex items-center gap-2 text-sm">
+        {it?.recipe ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
+        {it && <ItemIcon item={it} size={20} />}
+        <span className="min-w-0 flex-1 truncate">{name}</span>
+        <span className="text-xs tabular-nums text-neutral-400">×{qty}</span>
+      </div>
+      {open && it?.recipe && <RecipeParts recipe={it.recipe} items={items} />}
+    </li>
   )
 }
