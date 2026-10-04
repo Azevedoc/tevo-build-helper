@@ -10,6 +10,7 @@
     "typecheck": "tsc -b",
     "validate-data": "tsx scripts/validate-data.ts",
     "seed": "tsx scripts/seed-from-evohelper.ts",
+    "seed-wiki-builds": "tsx scripts/seed-wiki-builds.ts",
     "test": "vitest run",
     "preview": "vite preview"
   },

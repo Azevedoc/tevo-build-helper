@@ -36,6 +36,13 @@ The item dataset in `data/items.json` and the icons in `public/icons/` were seed
 (map 7.39b, 2026-10-04). Thank you! Since then the dataset has been maintained independently in this repository.
 No EvoHelper code is included in this project.
 
+### Wiki builds
+
+The recommended Imp 1-3 items per 4th class in `data/wiki-builds.json` were copied once from the
+[Twilight's Eve Evo Wiki](https://twilights-eve-evo.fandom.com/) (its `Module:BuildRecommendations` pages,
+2026-10-04), contributed by the wiki's editors and licensed under
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). The app does not contact the wiki.
+
 ### Twilight's Eve Evo and Warcraft III
 
 Item names, descriptions, icons and other game facts come from Twilight's Eve Evo, a custom map for

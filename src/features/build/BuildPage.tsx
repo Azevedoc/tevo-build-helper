@@ -41,7 +41,7 @@ export function BuildPage({ characterId }: { characterId: string }) {
           {character.className}
           {character.level !== null && <span className="ml-2 text-base text-neutral-400">Lv {character.level}</span>}
         </h2>
-        <BuildSelector characterId={characterId} builds={builds} active={active} />
+        <BuildSelector characterId={characterId} className={character.className} builds={builds} active={active} />
       </div>
 
       {!active ? (

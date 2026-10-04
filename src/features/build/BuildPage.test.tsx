@@ -111,3 +111,19 @@ test('a drop-only goal shows where it drops instead of a progress bar', async ()
   expect(row).toHaveTextContent('Drops from Dragon Fortress (Imp 2)')
   expect(row).not.toHaveTextContent('%')
 })
+
+test('a wiki build can be picked as the starting point of a new build', async () => {
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.change(screen.getByLabelText('Start from wiki build'), { target: { value: 'Imp 1' } })
+  expect(await screen.findByRole('combobox', { name: 'Active build' })).toHaveDisplayValue('Imp 1 (wiki)')
+  const goals = screen.getAllByTestId('goal-row').map(r => r.textContent)
+  expect(goals).toHaveLength(6)
+  expect(goals[0]).toContain('Blade of the Ruined King')
+  expect(goals[5]).toContain('Magic Mirror')
+})
+
+test('classes without wiki builds get no wiki build picker', async () => {
+  await store().importSave(fixture.replace('Hero: Paladin', 'Hero: Knight'), '[Level 1].txt')
+  render(<BuildPage characterId="local/Knight" />)
+  expect(screen.queryByLabelText('Start from wiki build')).not.toBeInTheDocument()
+})

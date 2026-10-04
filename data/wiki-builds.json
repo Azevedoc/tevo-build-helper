@@ -1,0 +1,758 @@
+{
+  "source": "https://twilights-eve-evo.fandom.com/",
+  "snapshotAt": "2026-10-04",
+  "classes": {
+    "Annihilator": {
+      "Imp 1": [
+        "doombringer",
+        "hell-diamond",
+        "blade-of-the-ruined-king",
+        "plated-gauntlet",
+        "claw-of-lightning",
+        "cont-irteacha"
+      ],
+      "Imp 2": [
+        "doombringer",
+        "glow-orb",
+        "blade-of-the-ruined-king",
+        "claw-of-lightning",
+        "plated-gauntlet",
+        "windtalker"
+      ],
+      "Imp 3": [
+        "legendary-dragon-orb",
+        "strength-of-the-earth",
+        "sword-of-the-occult",
+        "the-impaler",
+        "hunter-strike",
+        "cryocell"
+      ]
+    },
+    "Arch Sage": {
+      "Imp 1": [
+        "bethrezens-flame",
+        "energy-wand",
+        "scepter-of-mastery",
+        "hell-diamond",
+        "hand-of-blessed-light",
+        "pandora"
+      ],
+      "Imp 2": [
+        "vagabond",
+        "atlanteans-tome",
+        "glow-orb",
+        "espers-ring",
+        "mystral-staff",
+        "winters-heart"
+      ],
+      "Imp 3": [
+        "winters-soul",
+        "espers-ring",
+        "concentrated-energy",
+        "destruction",
+        "vagabond",
+        "legendary-dragon-orb"
+      ]
+    },
+    "Avenger": {
+      "Imp 1": [
+        "black-hades",
+        "angels-sanctuary",
+        "soul-crystal",
+        "hellmouth",
+        "plated-gauntlet",
+        "duriels-shell"
+      ],
+      "Imp 2": [
+        "black-hades",
+        "darkforge-plate",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "plated-gauntlet",
+        "hellmouth"
+      ],
+      "Imp 3": [
+        "helm-of-domination",
+        "dragonforge-plate",
+        "starlight-crystal",
+        "tainted-neptunes-eye",
+        "blinding-light-of-destiny",
+        "plated-gauntlet"
+      ]
+    },
+    "Champion": {
+      "Imp 1": [
+        "black-hades",
+        "angels-sanctuary",
+        "soul-crystal",
+        "hellmouth",
+        "plated-gauntlet",
+        "duriels-shell"
+      ],
+      "Imp 2": [
+        "black-hades",
+        "darkforge-plate",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "hellmouth",
+        "the-grandfather"
+      ],
+      "Imp 3": [
+        "helm-of-domination",
+        "dragonforge-plate",
+        "starlight-crystal",
+        "dragon-steel",
+        "blinding-light-of-destiny",
+        "legendary-dragon-orb"
+      ]
+    },
+    "Dark Arch Templar": {
+      "Imp 1": [
+        "doombringer",
+        "phantom-dancer",
+        "soul-crystal",
+        "moonfang",
+        "crystallized-emerald-blade",
+        "the-ark-royal"
+      ],
+      "Imp 2": [
+        "the-patriarch",
+        "corrupted-crystal",
+        "windtalker",
+        "blade-of-the-ruined-king",
+        "tainted-neptunes-eye",
+        "crystallized-emerald-blade"
+      ],
+      "Imp 3": [
+        "cursed-blade",
+        "starlight-crystal",
+        "blazes-touch",
+        "hunter-strike",
+        "windtalker",
+        "blade-of-despair"
+      ]
+    },
+    "Demon Incarnate": {
+      "Imp 1": [
+        "black-hades",
+        "soul-crystal",
+        "tremor",
+        "plated-gauntlet",
+        "claw-of-lightning",
+        "hell-diamond"
+      ],
+      "Imp 2": [
+        "claw-of-lightning",
+        "glow-orb",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "tremor",
+        "plated-gauntlet"
+      ],
+      "Imp 3": [
+        "blinding-light-of-destiny",
+        "starlight-crystal",
+        "strength-of-the-earth",
+        "glow-orb",
+        "legendary-dragon-orb",
+        "claw-of-midnight"
+      ]
+    },
+    "Grand Inquisitor": {
+      "Imp 1": [
+        "hellmouth",
+        "hell-diamond",
+        "soul-crystal",
+        "plated-gauntlet",
+        "megaton-blades",
+        "tremor"
+      ],
+      "Imp 2": [
+        "tremor",
+        "glow-orb",
+        "blade-of-the-ruined-king",
+        "plated-gauntlet",
+        "corrupted-crystal",
+        "the-patriarch"
+      ],
+      "Imp 3": [
+        "legendary-dragon-orb",
+        "strength-of-the-earth",
+        "glow-orb",
+        "cruel-blade",
+        "cryocell",
+        "tremor"
+      ]
+    },
+    "Grand Templar": {
+      "Imp 1": [
+        "energy-wand",
+        "pandora",
+        "scepter-of-oblivion",
+        "hand-of-blessed-light",
+        "soul-crystal",
+        "magic-mirror"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "vagabond",
+        "corrupted-crystal",
+        "atlanteans-tome",
+        "glow-orb",
+        "tainted-neptunes-eye"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "blasting-rod",
+        "hannahs-legend",
+        "concentrated-energy",
+        "vagabond",
+        "eclair-la-demes"
+      ]
+    },
+    "Hierophant": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "pandora"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "tainted-neptunes-eye",
+        "vagabond",
+        "corrupted-crystal",
+        "glow-orb",
+        "scepter-of-mastery"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "winters-soul",
+        "legendary-dragon-orb",
+        "dragon-totem",
+        "book-of-hylia",
+        "starlight-crystal"
+      ]
+    },
+    "Jounin": {
+      "Imp 1": [
+        "doombringer",
+        "hell-diamond",
+        "soul-crystal",
+        "moonfang",
+        "cont-irteacha",
+        "magic-mirror"
+      ],
+      "Imp 2": [
+        "doombringer",
+        "corrupted-crystal",
+        "windtalker",
+        "hyperion",
+        "glow-orb",
+        "phantom-dancer"
+      ],
+      "Imp 3": [
+        "cursed-blade",
+        "starlight-crystal",
+        "sword-of-the-occult",
+        "hunter-strike",
+        "malevolent",
+        "legendary-dragon-orb"
+      ]
+    },
+    "Legion Revenant": {
+      "Imp 1": [
+        "energy-wand",
+        "soul-crystal",
+        "pandora",
+        "hand-of-blessed-light",
+        "scepter-of-oblivion",
+        "magic-mirror"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "vagabond",
+        "corrupted-crystal",
+        "atlanteans-tome",
+        "tainted-neptunes-eye",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "winters-soul",
+        "eclair-la-demes",
+        "concentrated-energy",
+        "vagabond",
+        "hannahs-legend"
+      ]
+    },
+    "Lightbinder": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "scepter-of-oblivion"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "scepter-of-mastery",
+        "mystral-staff",
+        "tainted-neptunes-eye",
+        "corrupted-crystal",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "flask-of-the-oasis",
+        "winters-soul",
+        "eclair-la-demes",
+        "blasting-rod",
+        "espers-ring",
+        "starlight-crystal"
+      ]
+    },
+    "Master Stalker": {
+      "Imp 1": [
+        "doombringer",
+        "plated-gauntlet",
+        "soul-crystal",
+        "claw-of-lightning",
+        "moonfang",
+        "blade-of-the-ruined-king"
+      ],
+      "Imp 2": [
+        "claw-of-lightning",
+        "corrupted-crystal",
+        "blade-of-the-ruined-king",
+        "tainted-neptunes-eye",
+        "plated-gauntlet",
+        "doombringer"
+      ],
+      "Imp 3": [
+        "starlight-crystal",
+        "sword-of-the-occult",
+        "the-impaler",
+        "cruel-blade",
+        "malevolent",
+        "cursed-blade"
+      ]
+    },
+    "Monster Hunter": {
+      "Imp 1": [
+        "runic-bow",
+        "windforce",
+        "soul-crystal",
+        "eagle-eye",
+        "crystallized-emerald-blade",
+        "dark-bow"
+      ],
+      "Imp 2": [
+        "runic-bow",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "faith",
+        "windforce",
+        "demonic-aggression"
+      ],
+      "Imp 3": [
+        "soulshot",
+        "atalantas-speed",
+        "starlight-crystal",
+        "demonic-aggression",
+        "dragon-bow",
+        "windspeaker"
+      ]
+    },
+    "Mystic": {
+      "Imp 1": [
+        "crystallized-emerald-blade",
+        "magic-mirror",
+        "soul-crystal",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "scepter-of-oblivion"
+      ],
+      "Imp 2": [
+        "corrupted-crystal",
+        "demonic-aggression",
+        "mystral-staff",
+        "atlanteans-tome",
+        "tainted-neptunes-eye",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "blasting-rod",
+        "legendary-dragon-orb",
+        "demonic-aggression",
+        "concentrated-energy",
+        "vagabond",
+        "hannahs-legend"
+      ]
+    },
+    "Mythsong": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "scepter-of-oblivion"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "corrupted-crystal",
+        "mystral-staff",
+        "tainted-neptunes-eye",
+        "glow-orb",
+        "scepter-of-mastery"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "winters-soul",
+        "eclair-la-demes",
+        "legendary-dragon-orb",
+        "hannahs-legend",
+        "blasting-rod"
+      ]
+    },
+    "Paladin": {
+      "Imp 1": [
+        "blade-of-the-ruined-king",
+        "soul-crystal",
+        "tremor",
+        "plated-gauntlet",
+        "hell-diamond",
+        "magic-mirror"
+      ],
+      "Imp 2": [
+        "blade-of-the-ruined-king",
+        "glow-orb",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "tremor",
+        "plated-gauntlet"
+      ],
+      "Imp 3": [
+        "cryocell",
+        "legendary-dragon-orb",
+        "starlight-crystal",
+        "strength-of-the-earth",
+        "blazes-touch",
+        "storm-sanctuary"
+      ]
+    },
+    "Phantom Assassin": {
+      "Imp 1": [
+        "doombringer",
+        "phantom-dancer",
+        "soul-crystal",
+        "moonfang",
+        "blade-of-the-ruined-king",
+        "magic-mirror"
+      ],
+      "Imp 2": [
+        "doombringer",
+        "corrupted-crystal",
+        "phantom-dancer",
+        "blade-of-the-ruined-king",
+        "tainted-neptunes-eye",
+        "magic-mirror"
+      ],
+      "Imp 3": [
+        "cursed-blade",
+        "blade-of-despair",
+        "starlight-crystal",
+        "sword-of-the-occult",
+        "hunter-strike",
+        "storm-sanctuary"
+      ]
+    },
+    "Professional Witcher": {
+      "Imp 1": [
+        "doombringer",
+        "claw-of-lightning",
+        "soul-crystal",
+        "crystallized-emerald-blade",
+        "phantom-dancer",
+        "plated-gauntlet"
+      ],
+      "Imp 2": [
+        "glow-orb",
+        "phantom-dancer",
+        "corrupted-crystal",
+        "windtalker",
+        "tainted-neptunes-eye",
+        "claw-of-lightning"
+      ],
+      "Imp 3": [
+        "malevolent",
+        "starlight-crystal",
+        "sword-of-the-occult",
+        "claw-of-midnight",
+        "windtalker",
+        "cruel-blade"
+      ]
+    },
+    "Prophetess": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "scepter-of-oblivion",
+        "hand-of-blessed-light",
+        "hell-diamond"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "corrupted-crystal",
+        "mystral-staff",
+        "scepter-of-mastery",
+        "tainted-neptunes-eye",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "flask-of-the-oasis",
+        "dragon-totem",
+        "eclair-la-demes",
+        "hannahs-legend",
+        "blasting-rod"
+      ]
+    },
+    "Rhapsody": {
+      "Imp 1": [
+        "magic-mirror",
+        "soul-crystal",
+        "pandora",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "scepter-of-oblivion"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "corrupted-crystal",
+        "mystral-staff",
+        "atlanteans-tome",
+        "winters-heart",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "tainted-neptunes-eye",
+        "eclair-la-demes",
+        "legendary-dragon-orb",
+        "blasting-rod",
+        "concentrated-energy",
+        "hannahs-legend"
+      ]
+    },
+    "Rune Master": {
+      "Imp 1 Tank": [
+        "black-hades",
+        "angels-sanctuary",
+        "soul-crystal",
+        "hellmouth",
+        "plated-gauntlet",
+        "duriels-shell"
+      ],
+      "Imp 2 Tank": [
+        "black-hades",
+        "darkforge-plate",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "hellmouth",
+        "the-grandfather"
+      ],
+      "Imp 3 Tank": [
+        "helm-of-domination",
+        "dragonforge-plate",
+        "starlight-crystal",
+        "legendary-dragon-orb",
+        "blinding-light-of-destiny",
+        "dragon-steel"
+      ],
+      "Imp 1 DPS": [
+        "scepter-of-oblivion",
+        "claw-of-lightning",
+        "soul-crystal",
+        "hellmouth",
+        "plated-gauntlet",
+        "pandora"
+      ],
+      "Imp 2 DPS": [
+        "tainted-neptunes-eye",
+        "vagabond",
+        "corrupted-crystal",
+        "atlanteans-tome",
+        "plated-gauntlet",
+        "claw-of-lightning"
+      ],
+      "Imp 3 DPS": [
+        "claw-of-midnight",
+        "blinding-light-of-destiny",
+        "dragonforge-plate",
+        "concentrated-energy",
+        "starlight-crystal",
+        "strength-of-the-earth"
+      ]
+    },
+    "Sky Sorceress": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "pandora",
+        "soul-crystal",
+        "hell-diamond",
+        "bethrezens-flame"
+      ],
+      "Imp 2": [
+        "corrupted-crystal",
+        "vagabond",
+        "mystral-staff",
+        "atlanteans-tome",
+        "tainted-neptunes-eye",
+        "winters-heart"
+      ],
+      "Imp 3": [
+        "blasting-rod",
+        "legendary-dragon-orb",
+        "destruction",
+        "concentrated-energy",
+        "vagabond",
+        "hannahs-legend"
+      ]
+    },
+    "Sniper": {
+      "Imp 1": [
+        "runic-bow",
+        "windforce",
+        "soul-crystal",
+        "hell-diamond",
+        "crystallized-emerald-blade",
+        "dark-bow"
+      ],
+      "Imp 2": [
+        "glow-orb",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "faith",
+        "windforce",
+        "demonic-aggression"
+      ],
+      "Imp 3": [
+        "soulshot",
+        "atalantas-speed",
+        "starlight-crystal",
+        "legendary-dragon-orb",
+        "dragon-bow",
+        "windspeaker"
+      ]
+    },
+    "Stargazer": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "scepter-of-oblivion"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "corrupted-crystal",
+        "mystral-staff",
+        "tainted-neptunes-eye",
+        "glow-orb",
+        "scepter-of-mastery"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "winters-soul",
+        "dragon-totem",
+        "blasting-rod",
+        "eclair-la-demes",
+        "starlight-crystal"
+      ]
+    },
+    "Summoner": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "soul-crystal",
+        "pandora",
+        "magic-mirror",
+        "hand-of-blessed-light"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "vagabond",
+        "mystral-staff",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "eclair-la-demes",
+        "concentrated-energy",
+        "destruction",
+        "vagabond",
+        "starlight-crystal"
+      ]
+    },
+    "Valkyrie": {
+      "Imp 1": [
+        "black-hades",
+        "angels-sanctuary",
+        "soul-crystal",
+        "hellmouth",
+        "plated-gauntlet",
+        "duriels-shell"
+      ],
+      "Imp 2": [
+        "black-hades",
+        "darkforge-plate",
+        "corrupted-crystal",
+        "tainted-neptunes-eye",
+        "plated-gauntlet",
+        "hellmouth"
+      ],
+      "Imp 3": [
+        "helm-of-domination",
+        "dragonforge-plate",
+        "starlight-crystal",
+        "blinding-light-of-destiny",
+        "strength-of-the-earth",
+        "tainted-neptunes-eye"
+      ]
+    },
+    "White Wizard": {
+      "Imp 1": [
+        "energy-wand",
+        "scepter-of-mastery",
+        "pandora",
+        "hand-of-blessed-light",
+        "hell-diamond",
+        "bethrezens-flame"
+      ],
+      "Imp 2": [
+        "espers-ring",
+        "vagabond",
+        "mystral-staff",
+        "atlanteans-tome",
+        "winters-heart",
+        "glow-orb"
+      ],
+      "Imp 3": [
+        "espers-ring",
+        "winters-soul",
+        "destruction",
+        "concentrated-energy",
+        "vagabond",
+        "blasting-rod"
+      ]
+    }
+  }
+}
