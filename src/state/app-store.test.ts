@@ -74,3 +74,10 @@ test('state survives re-init from the same repo', async () => {
   expect(store().characters).toHaveLength(1)
   expect(store().builds).toHaveLength(1)
 })
+
+test('remembers the save folder handle', async () => {
+  const handle = { name: 'CustomMapData' } as unknown as FileSystemDirectoryHandle
+  expect(await store().getSaveFolder()).toBeUndefined()
+  await store().setSaveFolder(handle)
+  expect(await store().getSaveFolder()).toBe(handle)
+})

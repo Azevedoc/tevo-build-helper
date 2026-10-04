@@ -25,7 +25,11 @@ export interface AppState {
   deleteBuild(id: string): Promise<void>
   setActiveBuild(id: string): Promise<void>
   setGoals(buildId: string, goals: string[]): Promise<void>
+  getSaveFolder(): Promise<FileSystemDirectoryHandle | undefined>
+  setSaveFolder(handle: FileSystemDirectoryHandle): Promise<void>
 }
+
+const SAVE_FOLDER_KEY = 'saveFolder'
 
 let repo: Repo | null = null
 const getRepo = (): Repo => {
@@ -137,6 +141,14 @@ export const useAppStore = create<AppState>()((set, get) => {
     async setGoals(buildId, goals) {
       const b = get().builds.find(x => x.id === buildId)
       if (b) await saveBuilds([{ ...b, goals }])
+    },
+
+    getSaveFolder() {
+      return getRepo().getSetting<FileSystemDirectoryHandle>(SAVE_FOLDER_KEY)
+    },
+
+    async setSaveFolder(handle) {
+      await getRepo().putSetting(SAVE_FOLDER_KEY, handle)
     },
   }
 })

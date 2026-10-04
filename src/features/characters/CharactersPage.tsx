@@ -6,6 +6,7 @@ import { useAppStore } from '../../state/app-store'
 import { effectiveOwned } from '../../state/owned'
 import type { Build, Character } from '../../storage/types'
 import { DropZone, type Notice } from './DropZone'
+import { FolderImport } from './FolderImport'
 
 export function CharactersPage() {
   const characters = useAppStore(s => s.characters)
@@ -15,6 +16,7 @@ export function CharactersPage() {
 
   return (
     <div className="space-y-4">
+      <FolderImport onNotice={setNotice} />
       <DropZone onNotice={setNotice} />
       {notice && (
         <div
