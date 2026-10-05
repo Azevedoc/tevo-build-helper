@@ -4,9 +4,19 @@ import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import { dataset } from '../../data/dataset'
-import type { Source } from '../../data/types'
+import type { Item, Source } from '../../data/types'
 import type { GoalPart, GoalResult } from '../../engine/plan'
 import { ExpandButton } from './ExpandButton'
+
+/** Current items each item is a recipe input of, by input id, sorted by name. */
+const builtFrom = new Map<string, Item[]>()
+for (const item of [...dataset.items.values()].sort((a, b) => a.name.localeCompare(b.name))) {
+  if (item.legacy || item.name.includes('[')) continue
+  for (const { item: input } of item.recipe ?? []) {
+    const uses = builtFrom.get(input) ?? []
+    if (!uses.includes(item)) builtFrom.set(input, [...uses, item])
+  }
+}
 
 interface Props {
   goals: string[]
@@ -54,6 +64,7 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
   const dropsFrom = item && !item.recipe ? describeSources(item.sources) : null
   const obtained = result?.status === 'done'
   const parts = !obtained && item?.recipe ? (result?.parts ?? []) : []
+  const upgrades = obtained ? (builtFrom.get(goalId) ?? []) : []
 
   return (
     <li
@@ -70,6 +81,8 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
           <>
             {parts.length > 0 ? (
               <ExpandButton open={open} name={item.name} onToggle={() => setOpen(!open)} />
+            ) : upgrades.length > 0 ? (
+              <ExpandButton open={open} name={item.name} what="items built from" onToggle={() => setOpen(!open)} />
             ) : (
               <span className="w-4" />
             )}
@@ -105,6 +118,16 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
         <div className="mt-2 border-t border-neutral-800 pt-2 pl-6">
           <GoalParts parts={parts} />
         </div>
+      )}
+      {open && upgrades.length > 0 && (
+        <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-6">
+          {upgrades.map(up => (
+            <li key={up.id} data-testid="goal-upgrade" className="flex items-center gap-2 text-sm">
+              <ItemIcon item={up} size={20} />
+              <span className="min-w-0 flex-1 truncate">{up.name}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </li>
   )

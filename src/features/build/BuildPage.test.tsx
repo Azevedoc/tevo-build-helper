@@ -60,11 +60,23 @@ test('an intermediate in the dropdown expands to show what it is made from', asy
   expect(within(goal).getByText('Dragon Egg')).toBeInTheDocument()
 })
 
-test('an obtained goal has no materials dropdown', async () => {
+test('an obtained goal drops down the items built from it instead of its materials', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['glow-orb'])
   render(<BuildPage characterId="local/Paladin" />)
   expect(screen.queryByRole('button', { name: 'Show materials for Glow Orb' })).not.toBeInTheDocument()
+  expect(screen.queryByTestId('goal-upgrade')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show items built from Glow Orb' }))
+  expect(screen.getAllByTestId('goal-upgrade').map(u => u.textContent)).toEqual(['Legendary Dragon Orb'])
+})
+
+test('an obtained goal nothing is built from has no dropdown', async () => {
+  await store().importSave(fixture.replace('Item 4: ', 'Item 4: Arcane Orb'), '[Level 312].txt')
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['arcane-orb'])
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.getByTestId('goal-row')).toHaveTextContent('Obtained')
+  expect(screen.queryByRole('button', { name: /Arcane Orb/ })).toHaveAccessibleName('Remove Arcane Orb')
 })
 
 test('unknown character shows a not-found message', () => {
