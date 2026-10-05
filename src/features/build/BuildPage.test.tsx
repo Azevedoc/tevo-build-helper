@@ -137,7 +137,9 @@ test('focusing the goal box lists every item alphabetically to pick from', async
   fireEvent.focus(input)
   const list = screen.getByRole('list', { name: 'Goal suggestions' })
   const names = within(list).getAllByRole('button').map(b => b.textContent!.replace(/(in build|legacy)$/, ''))
-  expect(names.length).toBeGreaterThan(400)
+  expect(names.length).toBeGreaterThan(100)
+  expect(names).toContain('Vespermoon')
+  expect(names).not.toContain("Atma's Ring") // H1 drops aren't offered
   expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)))
   fireEvent.click(within(list).getByRole('button', { name: /Master Sword/ }))
   expect(await screen.findByTestId('goal-row')).toHaveTextContent('Master Sword')

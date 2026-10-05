@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { ItemIcon } from '../../components/ItemIcon'
 import { dataset } from '../../data/dataset'
-import { searchItems } from './search'
+import { goalFilter, searchItems } from './search'
 
-const allItems = [...dataset.items.values()].sort((a, b) => a.name.localeCompare(b.name))
+const isGoal = goalFilter(dataset)
+const allItems = [...dataset.items.values()].filter(isGoal).sort((a, b) => a.name.localeCompare(b.name))
 
 export function GoalSearch({ added, onAdd }: { added: string[]; onAdd: (itemId: string) => void }) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
-  const results = query.trim() ? searchItems(dataset, query) : open ? allItems : []
+  const results = query.trim() ? searchItems(dataset, query, 20, isGoal) : open ? allItems : []
   const firstAddable = results.find(item => !added.includes(item.id))
   const add = (itemId: string) => {
     onAdd(itemId)
