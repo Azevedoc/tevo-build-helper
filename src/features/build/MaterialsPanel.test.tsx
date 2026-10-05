@@ -106,3 +106,11 @@ test('a base material expands to show what it is used in, and for which goal', (
   fireEvent.click(screen.getByRole('button', { name: 'Show uses of Ruby' }))
   expect(screen.getAllByTestId('material-use').map(r => r.textContent)).toContain('Glow Orb×2')
 })
+
+test('owned goals are not listed under "Already have"', () => {
+  const goalOwned = { ...plan, materials: plan.materials.map(m => (m.itemId === 'glow-orb' ? { ...m, own: 1, missing: 0 } : m)) }
+  renderPanel(goalOwned)
+  expect(screen.getByRole('button', { name: 'Already have · 3' })).toBeInTheDocument()
+  openAlreadyHave()
+  expect(screen.queryByText('Glow Orb')).not.toBeInTheDocument()
+})

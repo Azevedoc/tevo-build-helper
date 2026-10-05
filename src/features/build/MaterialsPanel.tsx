@@ -21,8 +21,9 @@ export function MaterialsPanel({ plan, items, owned }: Props) {
   const have = (row: MaterialRow) => owned.get(row.itemId) ?? row.own
   const name = (id: string) => items.get(id)?.name ?? id
   // Base items still missing are farmed; owned crafted items whose missing copies were broken down still show here.
+  // Goals themselves are left out: the goal list already shows them as owned.
   const alreadyHave = plan.materials
-    .filter(m => m.own > 0 && (m.missing === 0 || !m.isBase))
+    .filter(m => m.own > 0 && (m.missing === 0 || !m.isBase) && !m.breakdown.some(b => b.parentId === null))
     .sort((a, b) => name(a.itemId).localeCompare(name(b.itemId), undefined, { numeric: true }))
 
   return (
