@@ -70,6 +70,18 @@ test('an obtained goal drops down the items built from it instead of its materia
   expect(screen.getAllByTestId('goal-upgrade').map(u => u.textContent)).toEqual(['Legendary Dragon Orb'])
 })
 
+test('picking an item built from an obtained goal makes it the goal in its place', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['hell-diamond', 'glow-orb', 'blazes-touch', 'legendary-dragon-orb'])
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Show items built from Glow Orb' }))
+  fireEvent.click(within(screen.getByTestId('goal-upgrade')).getByRole('button', { name: 'Legendary Dragon Orb' }))
+  const names = (await screen.findAllByTestId('goal-row')).map(r => r.textContent)
+  expect(names).toHaveLength(3) // the later copy of the upgrade is dropped
+  expect(names[1]).toContain('Legendary Dragon Orb')
+  expect(names[2]).toContain("Blaze's Touch")
+})
+
 test('an obtained goal nothing is built from has no dropdown', async () => {
   await store().importSave(fixture.replace('Item 4: ', 'Item 4: Arcane Orb'), '[Level 312].txt')
   const build = await store().createBuild('local/Paladin', 'B')

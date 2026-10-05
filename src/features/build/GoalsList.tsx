@@ -47,6 +47,8 @@ export function GoalsList({ goals, results, onChange }: Props) {
               goalId={goalId}
               result={results[i]}
               onRemove={() => onChange(goals.filter((_, j) => j !== i))}
+              // the upgrade takes this goal's place; drop any later copy so goals stay unique
+              onReplace={next => onChange(goals.map((g, j) => (j === i ? next : g)).filter((g, j) => g !== next || j === i))}
             />
           ))}
         </ul>
@@ -55,8 +57,14 @@ export function GoalsList({ goals, results, onChange }: Props) {
   )
 }
 
-function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | null; onRemove: () => void }) {
-  const { sortId, goalId, result, onRemove } = props
+function GoalRow(props: {
+  sortId: string
+  goalId: string
+  result: GoalResult | null
+  onRemove: () => void
+  onReplace: (itemId: string) => void
+}) {
+  const { sortId, goalId, result, onRemove, onReplace } = props
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: sortId })
   const [open, setOpen] = useState(false)
   const item = dataset.items.get(goalId)
@@ -120,11 +128,17 @@ function GoalRow(props: { sortId: string; goalId: string; result: GoalResult | n
         </div>
       )}
       {open && upgrades.length > 0 && (
-        <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-6">
+        <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-14">
           {upgrades.map(up => (
-            <li key={up.id} data-testid="goal-upgrade" className="flex items-center gap-2 text-sm">
-              <ItemIcon item={up} size={20} />
-              <span className="min-w-0 flex-1 truncate">{up.name}</span>
+            <li key={up.id} data-testid="goal-upgrade">
+              <button
+                title={`Replace ${item?.name} with ${up.name} as the next goal`}
+                className="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left text-sm hover:bg-neutral-800"
+                onClick={() => onReplace(up.id)}
+              >
+                <ItemIcon item={up} size={20} />
+                <span className="min-w-0 flex-1 truncate">{up.name}</span>
+              </button>
             </li>
           ))}
         </ul>
