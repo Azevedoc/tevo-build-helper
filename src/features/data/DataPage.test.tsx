@@ -14,6 +14,7 @@ test('shows dataset info and credits', () => {
   expect(screen.getByText(/2026-10-04/)).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'EvoHelper' })).toHaveAttribute('href', 'https://codeberg.org/ArgentumHeart/EvoHelper')
   expect(screen.getByRole('link', { name: 'Report wrong data' })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Source code on GitHub' })).toHaveAttribute('href', 'https://github.com/Azevedoc/tevo-build-helper')
 })
 
 test('says when no unknown items were seen', () => {

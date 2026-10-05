@@ -27,6 +27,10 @@ export function DataPage() {
         <p>
           <a className={link} href={`${REPO_URL}/issues/new`} target="_blank" rel="noreferrer">
             Report wrong data
+          </a>{' '}
+          ·{' '}
+          <a className={link} href={REPO_URL} target="_blank" rel="noreferrer">
+            Source code on GitHub
           </a>
         </p>
       </section>
