@@ -127,3 +127,16 @@ test('classes without wiki builds get no wiki build picker', async () => {
   render(<BuildPage characterId="local/Knight" />)
   expect(screen.queryByLabelText('Start from wiki build')).not.toBeInTheDocument()
 })
+
+test('goals can be picked from a dungeon without typing a name', async () => {
+  vi.spyOn(window, 'prompt').mockReturnValue('Tank')
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Create build' }))
+  fireEvent.change(await screen.findByRole('combobox', { name: 'Browse goals by source' }), { target: { value: 'M1 · Cursed Heaven' } })
+  fireEvent.click(screen.getByRole('button', { name: /Master Sword/ }))
+  expect(await screen.findByTestId('goal-row')).toHaveTextContent('Master Sword')
+  const list = screen.getByRole('button', { name: 'Close' }).closest('ul')!
+  expect(within(list).getByRole('button', { name: /Master Sword/ })).toBeDisabled() // list stays open to pick more
+  fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+  expect(screen.queryByRole('button', { name: /Angelslayer/ })).not.toBeInTheDocument()
+})
