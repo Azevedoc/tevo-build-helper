@@ -23,8 +23,8 @@ test('says when no unknown items were seen', () => {
 
 test('lists unknown item names from all characters with their source', async () => {
   await useAppStore.getState().importSave(fixture.replace('Item 3: Diamond', 'Item 3: Zeta Thing'), '[Level 1].txt')
-  await useAppStore.getState().importSave(fixture.replace('Item 3: Diamond', 'Item 3: Alpha Thing'), '[Level 1].txt', 'Tag#1')
+  await useAppStore.getState().importSave(fixture.replace('Item 3: Diamond', 'Item 3: Alpha Thing').replace('Hero: Paladin', 'Hero: Knight'), '[Level 1].txt', 'Tag#1')
   render(<DataPage />)
   const rows = screen.getAllByTestId('unknown-item')
-  expect(rows.map(r => r.textContent)).toEqual(['Alpha Thing — Tag#1/Paladin', 'Zeta Thing — local/Paladin'])
+  expect(rows.map(r => r.textContent)).toEqual(['Alpha Thing — Tag#1/Knight', 'Zeta Thing — local/Paladin'])
 })

@@ -36,6 +36,27 @@ test('a battleTag namespaces the character id', async () => {
   expect(result).toMatchObject({ ok: true, characterId: 'Tag#1/Paladin' })
 })
 
+test('a folder import absorbs the file-imported copy of the same class and its builds', async () => {
+  await store().importSave(fixture, '[Level 312].txt', 'Tag#1')
+  const current = await store().createBuild('Tag#1/Paladin', 'Current')
+  await store().importSave(fixture, '[Level 312].txt')
+  const old = await store().createBuild('local/Paladin', 'Old')
+
+  await store().importSave(fixture, '[Level 313].txt', 'Tag#1')
+
+  expect(store().characters.map(c => c.id)).toEqual(['Tag#1/Paladin'])
+  const builds = store().builds
+  expect(builds.map(b => b.id).sort()).toEqual([current.id, old.id].sort())
+  expect(builds.every(b => b.characterId === 'Tag#1/Paladin')).toBe(true)
+  expect(builds.filter(b => b.active).map(b => b.id)).toEqual([current.id])
+})
+
+test('a file import with no tagged copy stays local', async () => {
+  await store().importSave(fixture, '[Level 312].txt', 'Tag#1')
+  await store().importSave(fixture, '[Level 312].txt')
+  expect(store().characters.map(c => c.id).sort()).toEqual(['Tag#1/Paladin', 'local/Paladin'])
+})
+
 test('unreadable save is rejected and leaves characters unchanged', async () => {
   const result = await store().importSave('garbage', 'x.txt')
   expect(result.ok).toBe(false)

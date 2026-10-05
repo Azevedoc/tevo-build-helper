@@ -57,6 +57,18 @@ export const useAppStore = create<AppState>()((set, get) => {
     set({ builds: [...get().builds.filter(b => !ids.has(b.id)), ...changed] })
     for (const b of changed) await getRepo().putBuild(b)
   }
+  // A save imported as a single file has no BattleTag; once the same class arrives from the save folder,
+  // its builds move to the folder character so the class isn't listed twice.
+  const absorbLocalCopy = async (localId: string, targetId: string) => {
+    if (!get().characters.some(c => c.id === localId)) return
+    const hasActive = get().builds.some(b => b.characterId === targetId && b.active)
+    const moved = get()
+      .builds.filter(b => b.characterId === localId)
+      .map(b => ({ ...b, characterId: targetId, active: b.active && !hasActive }))
+    await saveBuilds(moved)
+    set({ characters: get().characters.filter(c => c.id !== localId) })
+    await getRepo().deleteCharacter(localId)
+  }
 
   return {
     ready: false,
@@ -105,6 +117,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         unknownNames,
       }
       await saveCharacter(character)
+      if (battleTag) await absorbLocalCopy(`local/${parsed.hero}`, id)
       return { ok: true, characterId: id, unknownCount: unknownNames.length }
     },
 
