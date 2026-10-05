@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ensureReadPermission, readSaveFiles, readSaveFolder, supportsFolderPicker, type FolderSave } from '../../import/folder'
+import { ensureReadPermission, isBrave, readSaveFiles, readSaveFolder, supportsFolderPicker, type FolderSave } from '../../import/folder'
 import { importSaves } from '../../import/sync'
 import { useAppStore } from '../../state/app-store'
 import type { Notice } from './DropZone'
@@ -86,10 +86,14 @@ function UploadedFolder({ busy, importAll }: { busy: boolean; importAll: ImportA
   const markFolderUploaded = useAppStore(s => s.markFolderUploaded)
   return (
     <div className="space-y-2">
-      <div role="note" className="rounded border border-amber-800 bg-amber-950/60 px-3 py-2 text-sm text-amber-200">
-        This browser can't keep access to your save folder, so choose it again after you save in-game. Open the app in Chrome
-        or Edge to have new saves picked up on their own.
-      </div>
+      {isBrave() ? (
+        <BraveNote />
+      ) : (
+        <div role="note" className="rounded border border-amber-800 bg-amber-950/60 px-3 py-2 text-sm text-amber-200">
+          This browser can't keep access to your save folder, so choose it again after you save in-game. Open the app in
+          Chrome or Edge to have new saves picked up on their own.
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <label className={`rounded bg-neutral-800 px-3 py-1.5 hover:bg-neutral-700 ${busy ? 'opacity-50' : 'cursor-pointer'}`}>
           {busy ? 'Reading…' : 'Choose save folder'}
@@ -108,6 +112,37 @@ function UploadedFolder({ busy, importAll }: { busy: boolean; importAll: ImportA
         </label>
         <span className="text-xs text-neutral-500">{HINT}</span>
       </div>
+    </div>
+  )
+}
+
+const BRAVE_FLAG = 'brave://flags/#file-system-access-api'
+
+/** Brave can keep the folder like Chrome once its flag is on; after the relaunch the picker is used and this goes away. */
+function BraveNote() {
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(BRAVE_FLAG)
+      setCopied(true)
+    } catch {
+      // clipboard blocked; the address is still shown to copy by hand
+    }
+  }
+  return (
+    <div role="note" className="space-y-1 rounded border border-amber-800 bg-amber-950/60 px-3 py-2 text-sm text-amber-200">
+      <p>Brave can't keep access to your save folder until you turn on a setting, so for now choose it again after you save in-game.</p>
+      <p>To have new saves picked up on their own, like in Chrome:</p>
+      <ol className="list-decimal space-y-0.5 pl-5">
+        <li>
+          Open <code className="rounded bg-black/40 px-1">{BRAVE_FLAG}</code> in a new tab.{' '}
+          <button className="text-sky-300 hover:underline" onClick={copy}>
+            {copied ? 'Copied' : 'Copy address'}
+          </button>
+        </li>
+        <li>Set <strong>File System Access API</strong> to <strong>Enabled</strong>.</li>
+        <li>Click <strong>Relaunch</strong>, then come back here and choose the folder once more.</li>
+      </ol>
     </div>
   )
 }

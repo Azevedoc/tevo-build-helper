@@ -15,10 +15,18 @@ declare global {
   interface Window {
     showDirectoryPicker?(options?: { mode?: 'read' | 'readwrite' }): Promise<FileSystemDirectoryHandle>
   }
+  interface Navigator {
+    brave?: unknown
+  }
 }
 
 export function supportsFolderPicker(): boolean {
   return typeof window !== 'undefined' && 'showDirectoryPicker' in window
+}
+
+/** Brave has the folder picker behind a flag, off by default. */
+export function isBrave(): boolean {
+  return typeof navigator !== 'undefined' && navigator.brave !== undefined
 }
 
 async function subdirectories(handle: FileSystemDirectoryHandle): Promise<FileSystemDirectoryHandle[]> {

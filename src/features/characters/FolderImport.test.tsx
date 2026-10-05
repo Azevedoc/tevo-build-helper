@@ -67,3 +67,26 @@ describe('in a browser that cannot keep a folder', () => {
     expect(useAppStore.getState().characters.map(c => c.id)).toEqual(['Tag#1/Paladin'])
   })
 })
+
+describe('in Brave', () => {
+  beforeEach(() => {
+    Object.defineProperty(navigator, 'brave', { value: {}, configurable: true })
+  })
+
+  afterEach(() => {
+    delete (navigator as { brave?: unknown }).brave
+  })
+
+  test('explains how to turn on the folder picker while it is off', () => {
+    delete window.showDirectoryPicker
+    render(<FolderImport onNotice={vi.fn()} />)
+    expect(screen.getByRole('note')).toHaveTextContent('brave://flags/#file-system-access-api')
+    expect(screen.getByRole('note')).not.toHaveTextContent(/Chrome or Edge/)
+  })
+
+  test('uses the folder picker with no note once the flag is on', () => {
+    render(<FolderImport onNotice={vi.fn()} />)
+    expect(screen.queryByRole('note')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Choose save folder' })).toBeInTheDocument()
+  })
+})
