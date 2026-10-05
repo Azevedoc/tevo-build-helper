@@ -42,7 +42,7 @@ test('a goal dropdown lists its materials with owned and needed counts', async (
   await store().setGoals(build.id, ['hell-diamond'])
   render(<BuildPage characterId="local/Paladin" />)
   expect(screen.queryByTestId('goal-part')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Hell Diamond' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Hell Diamond' }))
   const parts = screen.getAllByTestId('goal-part').map(p => p.textContent)
   expect(parts).toContain('Ruby1/1') // the fixture character owns Rubies
   expect(parts).toContain('Diabolic Orb0/1')
@@ -52,7 +52,7 @@ test('an intermediate in the dropdown expands to show what it is made from', asy
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['starlight-crystal'])
   render(<BuildPage characterId="local/Paladin" />)
-  fireEvent.click(screen.getByRole('button', { name: 'Show materials for Starlight Crystal' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Starlight Crystal' }))
   const goal = screen.getByTestId('goal-row').closest('li')!
   expect(within(goal).getByText('Draconic Trinity')).toBeInTheDocument()
   expect(within(goal).queryByText('Dragon Egg')).not.toBeInTheDocument()
@@ -64,17 +64,39 @@ test('an obtained goal drops down the items built from it instead of its materia
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['glow-orb'])
   render(<BuildPage characterId="local/Paladin" />)
-  expect(screen.queryByRole('button', { name: 'Show materials for Glow Orb' })).not.toBeInTheDocument()
   expect(screen.queryByTestId('goal-upgrade')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Show items built from Glow Orb' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Glow Orb' }))
   expect(screen.getAllByTestId('goal-upgrade').map(u => u.textContent)).toEqual(['Legendary Dragon Orb'])
+  expect(screen.queryByTestId('goal-part')).not.toBeInTheDocument()
+})
+
+test('a goal not yet obtained shows both its materials and what it builds into', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['hell-diamond'])
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Hell Diamond' }))
+  expect(screen.getAllByTestId('goal-part').length).toBeGreaterThan(0)
+  expect(screen.getAllByTestId('goal-upgrade').map(u => u.textContent)).toEqual(['Glow Orb'])
+})
+
+test('picking a material makes it the goal just before the one that needs it', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['blazes-touch', 'starlight-crystal'])
+  render(<BuildPage characterId="local/Paladin" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Starlight Crystal' }))
+  const part = screen.getAllByTestId('goal-part').find(p => p.textContent!.includes('Draconic Trinity'))!
+  fireEvent.click(within(part).getByRole('button', { name: 'Draconic Trinity' }))
+  const names = (await screen.findAllByTestId('goal-row')).map(r => r.textContent)
+  expect(names).toHaveLength(3)
+  expect(names[1]).toContain('Draconic Trinity')
+  expect(names[2]).toContain('Starlight Crystal')
 })
 
 test('picking an item built from an obtained goal makes it the goal in its place', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['hell-diamond', 'glow-orb', 'blazes-touch', 'legendary-dragon-orb'])
   render(<BuildPage characterId="local/Paladin" />)
-  fireEvent.click(screen.getByRole('button', { name: 'Show items built from Glow Orb' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show related items for Glow Orb' }))
   fireEvent.click(within(screen.getByTestId('goal-upgrade')).getByRole('button', { name: 'Legendary Dragon Orb' }))
   const names = (await screen.findAllByTestId('goal-row')).map(r => r.textContent)
   expect(names).toHaveLength(3) // the later copy of the upgrade is dropped

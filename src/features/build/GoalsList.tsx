@@ -49,6 +49,12 @@ export function GoalsList({ goals, results, onChange }: Props) {
               onRemove={() => onChange(goals.filter((_, j) => j !== i))}
               // the upgrade takes this goal's place; drop any later copy so goals stay unique
               onReplace={next => onChange(goals.map((g, j) => (j === i ? next : g)).filter((g, j) => g !== next || j === i))}
+              // a material is needed first, so it becomes the goal just before this one (moved there if already a goal)
+              onAddBefore={prev => {
+                const rest = goals.filter(g => g !== prev)
+                rest.splice(rest.indexOf(goalId), 0, prev)
+                onChange(rest)
+              }}
             />
           ))}
         </ul>
@@ -63,8 +69,9 @@ function GoalRow(props: {
   result: GoalResult | null
   onRemove: () => void
   onReplace: (itemId: string) => void
+  onAddBefore: (itemId: string) => void
 }) {
-  const { sortId, goalId, result, onRemove, onReplace } = props
+  const { sortId, goalId, result, onRemove, onReplace, onAddBefore } = props
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: sortId })
   const [open, setOpen] = useState(false)
   const item = dataset.items.get(goalId)
@@ -72,7 +79,8 @@ function GoalRow(props: {
   const dropsFrom = item && !item.recipe ? describeSources(item.sources) : null
   const obtained = result?.status === 'done'
   const parts = !obtained && item?.recipe ? (result?.parts ?? []) : []
-  const upgrades = obtained ? (builtFrom.get(goalId) ?? []) : []
+  const upgrades = builtFrom.get(goalId) ?? []
+  const expandable = parts.length > 0 || upgrades.length > 0
 
   return (
     <li
@@ -87,10 +95,8 @@ function GoalRow(props: {
         </span>
         {item ? (
           <>
-            {parts.length > 0 ? (
-              <ExpandButton open={open} name={item.name} onToggle={() => setOpen(!open)} />
-            ) : upgrades.length > 0 ? (
-              <ExpandButton open={open} name={item.name} what="items built from" onToggle={() => setOpen(!open)} />
+            {expandable ? (
+              <ExpandButton open={open} name={item.name} what="related items for" onToggle={() => setOpen(!open)} />
             ) : (
               <span className="w-4" />
             )}
@@ -122,43 +128,58 @@ function GoalRow(props: {
           ×
         </button>
       </div>
-      {open && parts.length > 0 && (
-        <div className="mt-2 border-t border-neutral-800 pt-2 pl-6">
-          <GoalParts parts={parts} />
+      {open && expandable && (
+        <div className="mt-2 space-y-2 border-t border-neutral-800 pt-2 pl-14">
+          {parts.length > 0 && (
+            <section>
+              <h4 className="mb-0.5 text-xs text-neutral-500">Made from</h4>
+              <GoalParts parts={parts} onPick={onAddBefore} />
+            </section>
+          )}
+          {upgrades.length > 0 && (
+            <section>
+              <h4 className="mb-0.5 text-xs text-neutral-500">Builds into</h4>
+              <ul className="space-y-0.5">
+                {upgrades.map(up => (
+                  <li key={up.id} data-testid="goal-upgrade">
+                    <PickButton item={up} title={`Replace ${item?.name} with ${up.name} as the goal`} onClick={() => onReplace(up.id)} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
-      )}
-      {open && upgrades.length > 0 && (
-        <ul className="mt-2 space-y-0.5 border-t border-neutral-800 pt-2 pl-14">
-          {upgrades.map(up => (
-            <li key={up.id} data-testid="goal-upgrade">
-              <button
-                title={`Replace ${item?.name} with ${up.name} as the next goal`}
-                className="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left text-sm hover:bg-neutral-800"
-                onClick={() => onReplace(up.id)}
-              >
-                <ItemIcon item={up} size={20} />
-                <span className="min-w-0 flex-1 truncate">{up.name}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
       )}
     </li>
   )
 }
 
+/** An item that can be clicked to make it a goal. */
+function PickButton({ item, title, onClick }: { item: Item; title: string; onClick: () => void }) {
+  return (
+    <button
+      title={title}
+      className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-0.5 text-left text-sm hover:bg-neutral-800"
+      onClick={onClick}
+    >
+      <ItemIcon item={item} size={20} />
+      <span className="min-w-0 flex-1 truncate">{item.name}</span>
+    </button>
+  )
+}
+
 /** A goal's recipe inputs; an input still to be crafted expands to show its own inputs. */
-function GoalParts({ parts }: { parts: GoalPart[] }) {
+function GoalParts({ parts, onPick }: { parts: GoalPart[]; onPick: (itemId: string) => void }) {
   return (
     <ul className="space-y-0.5">
       {parts.map(part => (
-        <PartRow key={part.itemId} part={part} />
+        <PartRow key={part.itemId} part={part} onPick={onPick} />
       ))}
     </ul>
   )
 }
 
-function PartRow({ part }: { part: GoalPart }) {
+function PartRow({ part, onPick }: { part: GoalPart; onPick: (itemId: string) => void }) {
   const [open, setOpen] = useState(false)
   const { itemId, need, own, parts } = part
   const it = dataset.items.get(itemId)
@@ -167,15 +188,18 @@ function PartRow({ part }: { part: GoalPart }) {
     <li>
       <div data-testid="goal-part" className="flex items-center gap-2 text-sm">
         {parts.length > 0 ? <ExpandButton open={open} name={name} onToggle={() => setOpen(!open)} /> : <span className="w-4 shrink-0" />}
-        {it && <ItemIcon item={it} size={20} />}
-        <span className="min-w-0 flex-1 truncate">{name}</span>
+        {it ? (
+          <PickButton item={it} title={`Add ${name} as a goal before this one`} onClick={() => onPick(itemId)} />
+        ) : (
+          <span className="min-w-0 flex-1 truncate">{name}</span>
+        )}
         <span className={`text-xs tabular-nums ${own >= need ? 'text-emerald-400' : 'text-neutral-400'}`}>
           {own}/{need}
         </span>
       </div>
       {open && (
         <div className="ml-2 mt-0.5 border-l border-neutral-800 pl-3">
-          <GoalParts parts={parts} />
+          <GoalParts parts={parts} onPick={onPick} />
         </div>
       )}
     </li>
