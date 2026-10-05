@@ -128,15 +128,22 @@ test('classes without wiki builds get no wiki build picker', async () => {
   expect(screen.queryByLabelText('Start from wiki build')).not.toBeInTheDocument()
 })
 
-test('goals can be picked from a dungeon without typing a name', async () => {
+test('focusing the goal box lists every item alphabetically to pick from', async () => {
   vi.spyOn(window, 'prompt').mockReturnValue('Tank')
   render(<BuildPage characterId="local/Paladin" />)
   fireEvent.click(screen.getByRole('button', { name: 'Create build' }))
-  fireEvent.change(await screen.findByRole('combobox', { name: 'Browse goals by source' }), { target: { value: 'M1 · Cursed Heaven' } })
-  fireEvent.click(screen.getByRole('button', { name: /Master Sword/ }))
+  const input = await screen.findByPlaceholderText('Add goal…')
+  expect(screen.queryByRole('button', { name: /Master Sword/ })).not.toBeInTheDocument()
+  fireEvent.focus(input)
+  const list = screen.getByRole('list', { name: 'Goal suggestions' })
+  const names = within(list).getAllByRole('button').map(b => b.textContent!.replace(/(in build|legacy)$/, ''))
+  expect(names.length).toBeGreaterThan(400)
+  expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)))
+  fireEvent.click(within(list).getByRole('button', { name: /Master Sword/ }))
   expect(await screen.findByTestId('goal-row')).toHaveTextContent('Master Sword')
-  const list = screen.getByRole('button', { name: 'Close' }).closest('ul')!
-  expect(within(list).getByRole('button', { name: /Master Sword/ })).toBeDisabled() // list stays open to pick more
-  fireEvent.click(screen.getByRole('button', { name: 'Close' }))
-  expect(screen.queryByRole('button', { name: /Angelslayer/ })).not.toBeInTheDocument()
+  expect(screen.queryByRole('list', { name: 'Goal suggestions' })).not.toBeInTheDocument() // closes after picking
+  fireEvent.blur(input)
+  fireEvent.focus(input)
+  fireEvent.keyDown(input, { key: 'Escape' })
+  expect(screen.queryByRole('list', { name: 'Goal suggestions' })).not.toBeInTheDocument()
 })
