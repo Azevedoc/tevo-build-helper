@@ -16,7 +16,7 @@ export interface AppState {
   builds: Build[]
   /** A save folder was chosen, either remembered (Chrome, Edge) or uploaded at least once (other browsers). */
   hasSaveFolder: boolean
-  /** The Characters page lists only tier 4 classes. */
+  /** The Characters page lists only tier 4 classes. On until the user turns it off. */
   onlyFourthClass: boolean
   init(repo?: Repo): Promise<void>
   importSave(text: string, fileName: string, battleTag?: string): Promise<ImportResult>
@@ -76,7 +76,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     characters: [],
     builds: [],
     hasSaveFolder: false,
-    onlyFourthClass: false,
+    onlyFourthClass: true,
 
     async init(r) {
       repo = r ?? (await openRepo())
@@ -85,7 +85,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         repo.listBuilds(),
         repo.getSetting(SAVE_FOLDER_KEY),
         repo.getSetting(FOLDER_UPLOADED_KEY),
-        repo.getSetting(ONLY_FOURTH_CLASS_KEY),
+        repo.getSetting<boolean>(ONLY_FOURTH_CLASS_KEY),
       ])
       set({
         ready: true,
@@ -93,7 +93,7 @@ export const useAppStore = create<AppState>()((set, get) => {
         characters,
         builds,
         hasSaveFolder: !!folder || !!uploaded,
-        onlyFourthClass: !!onlyFourth,
+        onlyFourthClass: onlyFourth ?? true,
       })
     },
 
