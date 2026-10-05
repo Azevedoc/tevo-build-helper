@@ -4,7 +4,7 @@ import { importSaves } from '../../import/sync'
 import { useAppStore } from '../../state/app-store'
 import type { Notice } from './DropZone'
 
-const HINT = 'Pick the folder that contains your BattleTag folders (Documents/Warcraft III/CustomMapData/…).'
+const HINT = "Pick your map data folder, usually C:\\Users\\<user>\\Documents\\Warcraft III\\CustomMapData\\Twilight's Eve Evo."
 
 type ImportAll = (read: () => Promise<FolderSave[]>) => Promise<void>
 
