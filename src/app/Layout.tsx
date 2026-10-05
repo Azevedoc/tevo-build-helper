@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useAppStore } from '../state/app-store'
+import { EVOHELPER_URL, WIKI_URL } from './config'
 import { toHash } from './route'
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -19,6 +20,17 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
       <main className="mx-auto max-w-6xl p-4">{children}</main>
+      <footer className="mx-auto max-w-6xl px-4 pt-2 pb-6 text-xs text-neutral-500">
+        Thanks to the{' '}
+        <a className="text-sky-400/80 hover:underline" href={WIKI_URL} target="_blank" rel="noreferrer">
+          Twilight's Eve Evo Wiki
+        </a>{' '}
+        and{' '}
+        <a className="text-sky-400/80 hover:underline" href={EVOHELPER_URL} target="_blank" rel="noreferrer">
+          EvoHelper
+        </a>{' '}
+        for their work. This app wouldn't exist without them.
+      </footer>
     </div>
   )
 }
