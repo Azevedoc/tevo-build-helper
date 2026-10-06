@@ -114,3 +114,31 @@ test('owned goals are not listed under "Already have"', () => {
   openAlreadyHave()
   expect(screen.queryByText('Glow Orb')).not.toBeInTheDocument()
 })
+
+test('a dropped goal needed only as itself stays off the farm list, which drops its emptied source', () => {
+  renderPanel({
+    ...plan,
+    materials: [
+      ...plan.materials,
+      { itemId: 'celestial-blade', isBase: true, need: 1, own: 0, missing: 1, breakdown: [{ parentId: null, goalId: 'celestial-blade', count: 1 }] },
+    ],
+    bySource: [...plan.bySource, { where: 'Tristram', tier: 'H4', items: [{ itemId: 'celestial-blade', missing: 1 }] }],
+  })
+  expect(screen.queryByText('Celestial Blade')).not.toBeInTheDocument()
+  expect(screen.queryByText(/Tristram/)).not.toBeInTheDocument()
+  expect(screen.getAllByTestId('source-group')).toHaveLength(3)
+})
+
+test('a dropped goal also used by another goal stays on the farm list', () => {
+  renderPanel({
+    ...plan,
+    materials: [
+      ...plan.materials.filter(m => m.itemId !== 'sapphire'),
+      {
+        itemId: 'sapphire', isBase: true, need: 5, own: 0, missing: 5,
+        breakdown: [{ parentId: 'glow-orb', goalId: 'glow-orb', count: 4 }, { parentId: null, goalId: 'sapphire', count: 1 }],
+      },
+    ],
+  })
+  expect(screen.getByText('Sapphire')).toBeInTheDocument()
+})

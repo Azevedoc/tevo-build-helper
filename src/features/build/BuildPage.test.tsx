@@ -120,9 +120,17 @@ test('unknown character shows a not-found message', () => {
 
 test('materials panel lists what is left to farm for the active build', async () => {
   const build = await store().createBuild('local/Paladin', 'B')
+  await store().setGoals(build.id, ['legendary-dragon-orb'])
+  render(<BuildPage characterId="local/Paladin" />)
+  expect(screen.getAllByTestId('source-group').length).toBeGreaterThan(0)
+})
+
+test('a goal that simply drops is not repeated in the materials panel', async () => {
+  const build = await store().createBuild('local/Paladin', 'B')
   await store().setGoals(build.id, ['blazes-touch'])
   render(<BuildPage characterId="local/Paladin" />)
-  expect(screen.getByTestId('source-group')).toHaveTextContent("Blaze's Touch0/1")
+  expect(screen.queryByTestId('source-group')).not.toBeInTheDocument()
+  expect(screen.getByText('Nothing left to farm.')).toBeInTheDocument()
 })
 
 test('materials panel empty state', async () => {

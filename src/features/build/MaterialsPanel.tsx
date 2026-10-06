@@ -18,6 +18,11 @@ const CHILD_ROW = 'flex items-center gap-2 text-sm'
 /** Materials still to farm grouped by source, then the owned ones the goals use, as owned out of needed. */
 export function MaterialsPanel({ plan, items, owned }: Props) {
   const rows = new Map(plan.materials.map(m => [m.itemId, m]))
+  // A goal that simply drops is already shown with its source in the goal list; list it only if other goals use it too.
+  const farmed = (id: string) => rows.get(id)?.breakdown.some(b => b.parentId !== null) ?? false
+  const groups = plan.bySource
+    .map(group => ({ ...group, items: group.items.filter(({ itemId }) => farmed(itemId)) }))
+    .filter(group => group.items.length > 0)
   const have = (row: MaterialRow) => owned.get(row.itemId) ?? row.own
   const name = (id: string) => items.get(id)?.name ?? id
   // Base items still missing are farmed; owned crafted items whose missing copies were broken down still show here.
@@ -28,10 +33,10 @@ export function MaterialsPanel({ plan, items, owned }: Props) {
 
   return (
     <div className="space-y-3">
-      {plan.bySource.length === 0 && <p className="text-sm text-neutral-400">Nothing left to farm.</p>}
-      {plan.bySource.length > 0 && (
+      {groups.length === 0 && <p className="text-sm text-neutral-400">Nothing left to farm.</p>}
+      {groups.length > 0 && (
         <ul className="space-y-3">
-          {plan.bySource.map(group => (
+          {groups.map(group => (
             <li key={`${group.where}|${group.tier ?? ''}`} data-testid="source-group" className="rounded border border-neutral-800 p-2">
               <div className="mb-1 text-sm font-semibold">
                 {group.where}
